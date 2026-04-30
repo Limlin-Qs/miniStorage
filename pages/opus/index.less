@@ -1,0 +1,141 @@
+/* 整体容器 */
+.detail-container {
+  padding: 20rpx;
+  background-color: #f5f5f5;
+  min-height: 100vh;
+}
+
+/* 头部区域 */
+.header-section {
+  display: flex;
+  align-items: center;
+  background-color: #fff;
+  padding: 20rpx;
+  border-radius: 10rpx;
+  margin-bottom: 20rpx;
+}
+.legend-icon {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 10rpx;
+  margin-right: 20rpx;
+}
+.title-group {
+  flex: 1;
+}
+.item-name {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+  display: block;
+  margin-bottom: 10rpx;
+}
+.item-type {
+  font-size: 28rpx;
+  color: #666;
+}
+
+/* 信息卡片 */
+.info-card {
+  background-color: #fff;
+  border-radius: 10rpx;
+  padding: 20rpx;
+  margin-bottom: 20rpx;
+}
+.info-item {
+  display: flex;
+  padding: 15rpx 0;
+  border-bottom: 1rpx solid #eee;
+  align-items: center;
+}
+.info-item:last-child {
+  border-bottom: none;
+}
+.label {
+  font-size: 30rpx;
+  color: #666;
+  width: 160rpx;
+}
+.value {
+  font-size: 30rpx;
+  color: #333;
+  flex: 1;
+}
+.status-active {
+  color: #07c160;
+}
+.status-inactive {
+  color: #ff4757;
+}
+.status-pending {
+  color: #ff9f43;
+}
+
+/* 联系方式样式 */
+.value[bindtap] {
+  color: #007aff;
+}
+.value[bindtap]:active {
+  color: #0056d2;
+}
+
+/* 下载区域样式 */
+.download-section {
+  background-color: #fff;
+  border-radius: 10rpx;
+  padding: 20rpx;
+  margin-bottom: 20rpx;
+}
+.section-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  display: block;
+  margin-bottom: 15rpx;
+}
+.file-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15rpx;
+}
+.file-item {
+  display: flex;
+  align-items: center;
+  padding: 15rpx;
+  border: 1rpx solid #eee;
+  border-radius: 8rpx;
+}
+.file-icon {
+  width: 40rpx;
+  height: 40rpx;
+  margin-right: 15rpx;
+}
+.file-name {
+  flex: 1;
+  font-size: 28rpx;
+  color: #333;
+}
+.download-icon {
+  width: 35rpx;
+  height: 35rpx;
+}
+
+/* 详情描述 */
+.desc-section {
+  background-color: #fff;
+  border-radius: 10rpx;
+  padding: 20rpx;
+}
+.desc-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  display: block;
+  margin-bottom: 15rpx;
+}
+.desc-content {
+  font-size: 30rpx;
+  color: #666;
+  line-height: 1.6;
+  white-space: pre-line;
+}

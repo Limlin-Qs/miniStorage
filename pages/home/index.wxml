@@ -21,7 +21,15 @@
               desc="{{item.desc}}"
               url="{{item.url}}"
               tags="{{item.tags}}"
+              bindtap="handleGoToOpus"
             />
+             <!-- 循环渲染card组件，并绑定自定义事件 goToOpus
+            <card 
+              wx:for="{{projects}}" 
+              wx:key="_id" 
+              project-data="{{item}}" 
+              bind:goToOpus="handleGoToOpus"
+            ></card> -->
           </view>
         </t-pull-down-refresh>
       </t-tab-panel>
@@ -33,6 +41,7 @@
             desc="{{item.desc}}"
             url="{{item.url}}"
             tags="{{item.tags}}"
+            bindtap="handleGoToOpus"
           />
         </view>
       </t-tab-panel>

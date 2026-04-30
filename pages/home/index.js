@@ -3,11 +3,14 @@ import request from '~/api/request';
 
 // 获取应用实例
 // const app = getApp()
+const db = wx.cloud.database();
 
 Page({
   data: {
     enable: false,
     swiperList: [],
+    // 存储从数据库获取的所有项目数据
+    projects: [],
     cardInfo: [],
     // 发布
     motto: 'Hello World',
@@ -31,6 +34,8 @@ Page({
     });
   },
   onLoad(option) {
+    // 在home页面加载时，从数据库获取所有项目数据
+    this.fetchProjects();
     if (wx.getUserProfile) {
       this.setData({
         canIUseGetUserProfile: true,
@@ -45,6 +50,23 @@ Page({
       }
       this.showOperMsg(content);
     }
+  },
+  // 数据库中项目信息获取
+  fetchProjects() {
+    wx.showLoading({ title: '加载中...' });
+    db.collection('projectSet').get({
+      success: (res) => {
+        this.setData({
+          projects: res.data // 将获取到的数据存入页面data
+        });
+        wx.hideLoading();
+      },
+      fail: (err) => {
+        wx.hideLoading();
+        wx.showToast({ title: '加载失败', icon: 'none' });
+        console.error(err);
+      }
+    });
   },
   onRefresh() {
     this.refresh();
@@ -79,4 +101,17 @@ Page({
       url: '/pages/release/index',
     });
   },
+   // 处理从卡片组件传递过来的跳转事件
+   handleGoToOpus(e) {
+    // 获取从卡片组件传递过来的项目ID
+    const projectId = e.detail.id;
+    
+    // 跳转到 opus 页面，并传递项目ID作为参数
+    // wx.navigateTo({
+    //   url: `/pages/opus/index?id=${projectId}`
+    // });
+    wx.navigateTo({
+      url: `/pages/opus/index`
+    });
+  }
 });

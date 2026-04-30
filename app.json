@@ -1,48 +1,70 @@
 {
-  "pages": ["pages/home/index", "pages/message/index", "pages/my/index"],
+  "pages": [
+    "pages/home/index",
+    "pages/message/index",
+    "pages/my/index",
+    "pages/opus/index"
+  ],
   "usingComponents": {
-    "t-toast": "tdesign-miniprogram/toast/toast"
+    "t-toast": "tdesign-miniprogram/toast/toast",
+    "t-input": "tdesign-miniprogram/input/input"
   },
   "subpackages": [
     {
       "root": "pages/search",
       "name": "search",
-      "pages": ["index"]
+      "pages": [
+        "index"
+      ]
     },
     {
       "root": "pages/my/info-edit",
       "name": "edit",
-      "pages": ["index"]
+      "pages": [
+        "index"
+      ]
     },
     {
       "root": "pages/chat",
       "name": "chat",
-      "pages": ["index"]
+      "pages": [
+        "index"
+      ]
     },
     {
       "root": "pages/login",
       "name": "login",
-      "pages": ["login"]
+      "pages": [
+        "login"
+      ]
     },
     {
       "root": "pages/loginCode",
       "name": "loginCode",
-      "pages": ["loginCode"]
+      "pages": [
+        "loginCode"
+      ]
     },
     {
       "root": "pages/dataCenter",
       "name": "dataCenter",
-      "pages": ["index"]
+      "pages": [
+        "index"
+      ]
     },
     {
       "root": "pages/setting",
       "name": "setting",
-      "pages": ["index"]
+      "pages": [
+        "index"
+      ]
     },
     {
       "root": "pages/release",
       "name": "release",
-      "pages": ["index"]
+      "pages": [
+        "index"
+      ]
     }
   ],
   "window": {

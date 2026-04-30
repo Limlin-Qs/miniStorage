@@ -1,0 +1,60 @@
+<view class="detail-container">
+  <!-- 头部图例+标题区域 -->
+  <view class="header-section">
+    <image class="legend-icon" src="{{item.legend}}" mode="widthFix"></image>
+    <view class="title-group">
+      <text class="item-name">{{item.name}}</text>
+      <text class="item-type">{{item.type}}</text>
+    </view>
+  </view>
+
+  <!-- 核心信息卡片 -->
+  <view class="info-card">
+    <view class="info-item">
+      <text class="label">所属部门：</text>
+      <text class="value">{{item.department}}</text>
+    </view>
+    <view class="info-item">
+      <text class="label">负责人：</text>
+      <text class="value">{{item.leader}}</text>
+    </view>
+    <view class="info-item">
+      <text class="label">创建时间：</text>
+      <text class="value">{{item.createTime}}</text>
+    </view>
+    <view class="info-item">
+      <text class="label">状态：</text>
+      <text class="value status-{{item.status}}">{{item.statusText}}</text>
+    </view>
+    <!-- 联系方式 -->
+    <view class="info-item">
+      <text class="label">联系电话：</text>
+      <text class="value" bindtap="callLeader">{{item.phone}}</text>
+    </view>
+    <view class="info-item">
+      <text class="label">联系邮箱：</text>
+      <text class="value" bindtap="copyEmail">{{item.email}}</text>
+    </view>
+  </view>
+
+  <!-- 文件下载区域（核心修改：传递fileID） -->
+  <view class="download-section">
+    <text class="section-title">文件下载</text>
+    <view class="file-list">
+      <block wx:for="{{item.files}}" wx:key="index">
+        <!-- 关键修改：将 data-fileurl 改为 data-fileid -->
+        <view class="file-item" bindtap="downloadFile" data-fileid="{{item.fileID}}" data-filename="{{item.name}}">
+          <!-- <image class="file-icon" src="/images/file_icon.png" mode="widthFix"></image> -->
+          <text class="file-name">{{item.name}}</text>
+          <image class="download-icon" src="/images/download.png" mode="widthFix"></image>
+        </view>
+      </block>
+    </view>
+  </view>
+
+  <!-- 详情描述区域 -->
+  <view class="desc-section">
+    <text class="desc-title">详情介绍</text>
+    <text class="desc-content">{{item.description}}</text>
+  </view>
+</view>

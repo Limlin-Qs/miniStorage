@@ -2,7 +2,7 @@
 
 Page({
   /**
-   * 页面的初始数据
+   * 页面的初始数据，待补充逻辑
    */
   data: {
     originFiles: [
@@ -25,8 +25,9 @@ Page({
     config: {
       count: 1,
     },
-    tags: ['AI绘画', '版权素材', '原创', '风格灵动'],
+    tags: ['设备运维', '作业管控', '日常管理', '技术研发'],
   },
+
   handleSuccess(e) {
     const { files } = e.detail;
     this.setData({

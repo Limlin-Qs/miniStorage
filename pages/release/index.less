@@ -10,6 +10,19 @@
   .box {
     width: 100%;
   }
+  .illustrate {
+    height: 32rpx * 2;
+    display: flex;
+    padding: 32rpx;
+    align-items: flex-start;
+    justify-content: space-between;
+    box-sizing: border-box;
+    .illustrate-class {
+      width: 246rpx * 2;
+      height: 100%;
+      padding: 0;
+    }
+  }
   .upload {
     height: 112rpx * 2;
     position: relative;
@@ -45,6 +58,35 @@
     .tag-class {
       margin-left: 24rpx;
     }
+  }
+  .info {
+    &__input {
+      .input-label {
+        display: flex;
+        padding-right: 32rpx;
+        box-sizing: border-box;
+        border-right: 1rpx solid #e7e7e7;
+      }
+      .input-icon {
+        margin-left: 8rpx;
+      }
+    }
+    &__demo {
+      display: flex;
+      align-items: center;
+      margin: 32rpx;
+      line-height: 40rpx;
+    }
+  }
+  .custom-label {
+    display: inline-flex;
+  }
+  
+  .custom-label::after {
+    content: '*';
+    color: red;
+    font-size: 32rpx;
+    margin-left: 4rpx;
   }
   .btngroup {
     display: flex;
