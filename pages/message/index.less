@@ -1,9 +1,12 @@
-/* pages/message/message.wxss */
+/* pages/message/index.less */
+@import '/variable.less';
+
 page {
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
   height: 100vh;
+  padding-top: calc(@nav-bar-height + @navbar-padding-top);
   padding-bottom: calc(env(safe-area-inset-bottom) + 112rpx);
 }
 
@@ -16,17 +19,37 @@ page {
   flex-grow: 1;
 }
 
+.empty-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
 .avatar {
   border-radius: 50% !important;
 }
 
 .content > view {
-  width: 560rpx;
+  width: 460rpx;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .content.unread > view {
-  width: 510rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.right-area {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8rpx;
+}
+
+.time-text {
+  font-size: 22rpx;
+  color: #999;
 }

@@ -1,0 +1,33 @@
+<t-navbar title="意见反馈" left-arrow />
+
+<view class="feedback-page">
+  <view class="feedback-section">
+    <text class="feedback-label">反馈类型</text>
+    <t-radio-group bind:change="onTypeChange" value="{{feedbackType}}" options="{{typeOptions}}" />
+  </view>
+
+  <view class="feedback-section">
+    <text class="feedback-label">反馈内容</text>
+    <t-textarea
+      placeholder="请详细描述您的问题或建议，我们将尽快处理"
+      value="{{content}}"
+      bind:change="onContentChange"
+      maxlength="500"
+      indicator
+      autosize
+    />
+  </view>
+
+  <view class="feedback-section">
+    <text class="feedback-label">联系方式（选填）</text>
+    <t-input placeholder="方便我们联系您" value="{{contact}}" bind:change="onContactChange" />
+  </view>
+
+  <view class="feedback-submit">
+    <t-button theme="primary" block size="large" bindtap="onSubmit" loading="{{submitting}}">
+      提交反馈
+    </t-button>
+  </view>
+</view>
+
+<t-toast id="t-toast" />

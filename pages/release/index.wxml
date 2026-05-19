@@ -6,39 +6,48 @@
       <t-upload t-class="upload-class" media-type="{{['image']}}" files="{{originFiles}}" gridConfig="{{gridConfig}}" bind:success="handleSuccess" bind:remove="handleRemove" max="4" />
     </view>
     <view class="desc box">
+      <view class="desc-label">项目名称</view>
+      <t-input t-class="desc-class" placeholder="请输入项目名称" value="{{formData.name}}" bindchange="onNameInput" maxlength="50" />
+    </view>
+    <view class="desc box">
       <view class="desc-label">添加描述</view>
-      <t-textarea t-class="desc-class" t-class-textarea="placeholder-class" placeholder="分享项目的创作思路" maxlength="500" disableDefaultPadding="{{true}}" indicator />
+      <t-textarea t-class="desc-class" t-class-textarea="placeholder-class" placeholder="分享项目的创作思路" value="{{formData.description}}" bindchange="onDescriptionInput" maxlength="500" disableDefaultPadding="{{true}}" indicator />
     </view>
     <view class="taggroup box">
       <t-cell t-class-title="cell-title-class" t-class-note="cell-note-class" title="添加标签">
-        <block wx:for="{{tags}}" wx:key="index">
-          <t-check-tag t-class="tag-class" size="medium" default-checked="{{index===0}}" variant="dark" content="#{{item}}" slot="note" />
-        </block>
+        <view slot="note" class="tag-area">
+          <view class="tag-item" wx:for="{{tags}}" wx:key="index">
+            <t-check-tag size="medium" checked="{{selectedTags.indexOf(item) >= 0}}" variant="dark" content="{{item}}" data-tag="{{item}}" bindchange="onTagChange" />
+            <view class="tag-remove" catchtap="removeTag" data-tag="{{item}}">×</view>
+          </view>
+          <view class="add-tag-row">
+            <t-input
+              t-class="add-tag-input"
+              placeholder="输入标签，回车添加"
+              value="{{newTag}}"
+              bindchange="onNewTagInput"
+              bindenter="addCustomTag"
+              maxlength="10"
+            />
+            <t-button theme="default" size="small" icon="add" bindtap="addCustomTag">添加</t-button>
+          </view>
+        </view>
       </t-cell>
     </view>
-    <!-- 加入部门信息、项目信息、项目团队等信息输入 -->
     <view class="info box">
       <view class="info__input">
-        <!-- 部门信息 -->
         <t-input 
           placeholder="请输入所属部门"
           value="{{formData.department}}"
           bindchange="onDepartmentChange">
           <view slot="label" class="custom-label"> 所属部门 </view>
         </t-input>
-        <!-- 项目信息 -->
         <t-input 
           placeholder="请输入项目名称"
           value="{{formData.projectName}}"
           bindchange="onProjectNameChange">
           <view slot="label" class="custom-label"> 项目名称 </view>
         </t-input>
-        <!-- <t-input 
-          placeholder="例如：进行中 / 已完成 / 规划中"
-          value="{{formData.projectStatus}}"
-          bindchange="onProjectStatusChange">
-          <view slot="label" class="custom-label"> 项目进度 </view>
-        </t-input> -->
         <t-input 
           placeholder="请输入项目团队"
           value="{{formData.projectLeader}}"
@@ -64,8 +73,8 @@
       <t-cell title="所在位置" hover arrow leftIcon="location" bindtap="gotoMap" />
     </view>
     <view class="btngroup box">
-      <t-button t-class="btn-class" theme="light" icon="file-copy" content="存草稿" size="large" bindtap="saveDraft"></t-button>
-      <t-button t-class="btn-class" theme="primary" icon="upload" content="发布" size="large" bindtap="release"></t-button>
+      <t-button t-class="btn-class" theme="light" icon="file-copy" content="存草稿" size="large" bindtap="saveDraft" disabled="{{submitting}}"></t-button>
+      <t-button t-class="btn-class" theme="primary" icon="upload" content="发布" size="large" bindtap="release" disabled="{{submitting}}"></t-button>
     </view>
   </view>
 </view>

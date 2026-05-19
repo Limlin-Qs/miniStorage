@@ -1,93 +1,92 @@
 import Message from 'tdesign-miniprogram/message/index';
-import request from '~/api/request';
-
-// 获取应用实例
-// const app = getApp()
-const db = wx.cloud.database();
+import { getContentList, getSwipers } from '~/utils/content';
 
 Page({
   data: {
     enable: false,
     swiperList: [],
-    // 存储从数据库获取的所有项目数据
-    projects: [],
     cardInfo: [],
-    // 发布
-    motto: 'Hello World',
-    userInfo: {},
-    hasUserInfo: false,
-    canIUse: wx.canIUse('button.open-type.getUserInfo'),
-    canIUseGetUserProfile: false,
-    canIUseOpenData: wx.canIUse('open-data.type.userAvatarUrl') && wx.canIUse('open-data.type.userNickName'), // 如需尝试获取用户信息可改为false
+    focusCardInfo: [],
+    currentTab: 'recommend',
+    page: 1,
+    hasMore: true,
+    loading: false,
   },
-  // 生命周期
-  async onReady() {
-    const [cardRes, swiperRes] = await Promise.all([
-      request('/home/cards').then((res) => res.data),
-      request('/home/swipers').then((res) => res.data),
-    ]);
 
-    this.setData({
-      cardInfo: cardRes.data,
-      focusCardInfo: cardRes.data.slice(0, 3),
-      swiperList: swiperRes.data,
-    });
-  },
-  onLoad(option) {
-    // 在home页面加载时，从数据库获取所有项目数据
-    this.fetchProjects();
-    if (wx.getUserProfile) {
-      this.setData({
-        canIUseGetUserProfile: true,
-      });
-    }
+  async onLoad(option) {
     if (option.oper) {
       let content = '';
-      if (option.oper === 'release') {
-        content = '发布成功';
-      } else if (option.oper === 'save') {
-        content = '保存成功';
-      }
+      if (option.oper === 'release') content = '发布成功';
+      else if (option.oper === 'save') content = '保存成功';
       this.showOperMsg(content);
     }
+    await this.loadData(true);
   },
-  // 数据库中项目信息获取
-  fetchProjects() {
-    wx.showLoading({ title: '加载中...' });
-    db.collection('projectSet').get({
-      success: (res) => {
-        this.setData({
-          projects: res.data // 将获取到的数据存入页面data
-        });
-        wx.hideLoading();
-      },
-      fail: (err) => {
-        wx.hideLoading();
-        wx.showToast({ title: '加载失败', icon: 'none' });
-        console.error(err);
-      }
-    });
-  },
-  onRefresh() {
-    this.refresh();
-  },
-  async refresh() {
-    this.setData({
-      enable: true,
-    });
-    const [cardRes, swiperRes] = await Promise.all([
-      request('/home/cards').then((res) => res.data),
-      request('/home/swipers').then((res) => res.data),
-    ]);
 
-    setTimeout(() => {
-      this.setData({
-        enable: false,
-        cardInfo: cardRes.data,
-        swiperList: swiperRes.data,
-      });
-    }, 1500);
+  onShow() {
+    // 非首次进入时刷新（如从详情页返回）
+    if (this._loaded) {
+      this.loadData(true);
+    }
+    this._loaded = true;
   },
+
+  /** 加载数据 */
+  async loadData(isRefresh = false) {
+    if (this.data.loading) return;
+    this.setData({ loading: true });
+
+    try {
+      const page = isRefresh ? 1 : this.data.page;
+      const [listRes, swiperRes] = await Promise.all([
+        getContentList(this.data.currentTab, page),
+        isRefresh ? getSwipers() : Promise.resolve(null),
+      ]);
+
+      if (listRes.success) {
+        const newCardInfo = isRefresh
+          ? listRes.data.list
+          : [...this.data.cardInfo, ...listRes.data.list];
+
+        this.setData({
+          cardInfo: newCardInfo,
+          focusCardInfo: newCardInfo.slice(0, 3),
+          page: page + 1,
+          hasMore: listRes.data.hasMore,
+        });
+      }
+
+      if (swiperRes && swiperRes.success) {
+        this.setData({ swiperList: swiperRes.data });
+      }
+    } catch (err) {
+      console.error('loadData error:', err);
+    } finally {
+      this.setData({ loading: false });
+    }
+  },
+
+  /** 下拉刷新 */
+  onRefresh() {
+    this.setData({ enable: true });
+    this.loadData(true).then(() => {
+      setTimeout(() => this.setData({ enable: false }), 500);
+    });
+  },
+
+  /** 触底加载更多 */
+  onReachBottom() {
+    if (this.data.hasMore && !this.data.loading) {
+      this.loadData();
+    }
+  },
+
+  /** Tab 切换 */
+  onTabChange(e) {
+    this.setData({ currentTab: e.detail.value, cardInfo: [], page: 1, hasMore: true });
+    this.loadData(true);
+  },
+
   showOperMsg(content) {
     Message.success({
       context: this,
@@ -96,22 +95,16 @@ Page({
       content,
     });
   },
+
   goRelease() {
-    wx.navigateTo({
-      url: '/pages/release/index',
-    });
+    wx.navigateTo({ url: '/pages/release/index' });
   },
-   // 处理从卡片组件传递过来的跳转事件
-   handleGoToOpus(e) {
-    // 获取从卡片组件传递过来的项目ID
-    const projectId = e.detail.id;
-    
-    // 跳转到 opus 页面，并传递项目ID作为参数
-    // wx.navigateTo({
-    //   url: `/pages/opus/index?id=${projectId}`
-    // });
-    wx.navigateTo({
-      url: `/pages/opus/index`
-    });
-  }
+
+  /** 跳转作品详情 */
+  handleGoToOpus(e) {
+    const id = e.detail.id || e.currentTarget.dataset.id;
+    if (id) {
+      wx.navigateTo({ url: `/pages/opus/index?id=${id}` });
+    }
+  },
 });

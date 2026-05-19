@@ -7,6 +7,7 @@
   width: 100vw;
   height: 100vh;
   padding: 0 30rpx;
+  padding-top: calc(60px + 20px);
 }
 
 .search-page .t-class__input-container {
@@ -91,4 +92,50 @@
 
 .search-page .search-item .history-item {
   background: #e7e7e7;
+}
+
+/* 搜索结果样式 */
+.search-loading,
+.search-empty {
+  padding: 120rpx 0;
+  text-align: center;
+}
+
+.search-result-list {
+  margin-top: 16rpx;
+}
+
+.search-result-item {
+  display: flex;
+  align-items: center;
+  padding: 24rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.search-result-image {
+  width: 160rpx;
+  height: 120rpx;
+  border-radius: 8rpx;
+  margin-right: 24rpx;
+  flex-shrink: 0;
+}
+
+.search-result-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.search-result-name {
+  font-size: 30rpx;
+  color: #333;
+  display: block;
+  margin-bottom: 12rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.search-result-tags {
+  display: flex;
+  gap: 12rpx;
 }

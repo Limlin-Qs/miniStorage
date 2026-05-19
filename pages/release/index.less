@@ -1,10 +1,13 @@
 /* pages/release/index.wxss */
+@import '/variable.less';
+
 .release-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
   padding: 0;
+  padding-top: calc(@nav-bar-height + @navbar-padding-top);
   box-sizing: border-box;
 
   .box {
@@ -55,8 +58,43 @@
       overflow-x: auto;
       justify-content: start;
     }
-    .tag-class {
-      margin-left: 24rpx;
+    .tag-area {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 16rpx;
+    }
+    .tag-item {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+    }
+    .tag-remove {
+      position: absolute;
+      top: -10rpx;
+      right: -10rpx;
+      width: 32rpx;
+      height: 32rpx;
+      border-radius: 50%;
+      background: #e34d59;
+      color: #fff;
+      font-size: 22rpx;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      z-index: 1;
+    }
+    .add-tag-row {
+      display: flex;
+      align-items: center;
+      gap: 12rpx;
+      margin-top: 16rpx;
+      width: 100%;
+    }
+    .add-tag-input {
+      flex: 1;
+      min-width: 200rpx;
     }
   }
   .info {
@@ -92,8 +130,6 @@
     display: flex;
     justify-content: space-evenly;
     padding: 32rpx;
-    position: fixed;
-    bottom: 64rpx;
     .btn-class {
       width: 163.5rpx * 2;
       margin: 0;

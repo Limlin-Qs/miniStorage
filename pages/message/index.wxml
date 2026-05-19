@@ -6,20 +6,30 @@
   scroll-y
   refresher-enabled
   refresher-triggered="{{ loading }}"
-  bindrefresherrefresh="getMessageList"
+  bindrefresherrefresh="onPullDownRefresh"
 >
+  <!-- 空状态 -->
+  <view class="empty-wrap" wx:if="{{ !loading && conversationList.length === 0 }}">
+    <t-empty icon="chat" description="暂无消息" />
+  </view>
+
+  <!-- 会话列表 -->
   <t-cell
-    wx:for="{{ messageList }}"
-    wx:key="index"
+    wx:for="{{ conversationList }}"
+    wx:key="_id"
     t-class-image="avatar"
-    t-class-description="content {{ utils.isRead(item.messages) ? '' : 'unread' }}"
+    t-class-description="content {{ item.unread > 0 ? 'unread' : '' }}"
     image="{{ item.avatar }}"
     title="{{ item.name }}"
-    description="{{ item.messages[item.messages.length - 1].content }}"
+    description="{{ item.lastMessage }}"
     hover
     bind:tap="toChat"
-    data-user-id="{{ item.userId }}"
+    data-id="{{ item._id }}"
+    data-target-openid="{{ item.targetOpenid }}"
   >
-    <t-badge slot="right-icon" count="{{ utils.computeUnreadNum(item.messages) }}" class="wrapper" />
+    <view slot="right-icon" class="right-area">
+      <text class="time-text">{{ utils.formatTime(item.lastTime) }}</text>
+      <t-badge count="{{ item.unread }}" />
+    </view>
   </t-cell>
 </scroll-view>

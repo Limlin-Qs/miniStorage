@@ -3,6 +3,7 @@
   "usingComponents": {
     "t-navbar": "tdesign-miniprogram/navbar/navbar",
     "t-upload": "tdesign-miniprogram/upload/upload",
+    "t-input": "tdesign-miniprogram/input/input",
     "t-textarea": "tdesign-miniprogram/textarea/textarea",
     "t-cell": "tdesign-miniprogram/cell/cell",
     "t-check-tag": "tdesign-miniprogram/check-tag/check-tag",

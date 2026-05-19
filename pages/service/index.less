@@ -1,0 +1,169 @@
+@import '/variable.less';
+
+page {
+  padding-top: calc(@nav-bar-height + @navbar-padding-top);
+  background-color: @bg-color;
+}
+
+.service-page {
+  padding: 24rpx 32rpx;
+}
+
+.service-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48rpx 0 40rpx;
+
+  &__icon {
+    width: 128rpx;
+    height: 128rpx;
+    border-radius: 50%;
+    background-color: #e8f0ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 24rpx;
+  }
+
+  &__title {
+    font-size: 36rpx;
+    font-weight: 600;
+    color: @gy1;
+    margin-bottom: 8rpx;
+  }
+
+  &__desc {
+    font-size: 24rpx;
+    color: @gy2;
+  }
+}
+
+.service-section {
+  background-color: #fff;
+  border-radius: 24rpx;
+  margin-bottom: 24rpx;
+  overflow: hidden;
+
+  &__title {
+    font-size: 26rpx;
+    font-weight: 600;
+    color: @gy2;
+    padding: 24rpx 32rpx 8rpx;
+  }
+}
+
+// 在线客服按钮
+.service-contact-btn {
+  display: flex;
+  align-items: center;
+  padding: 24rpx 32rpx;
+  background: #fff;
+  border: none;
+  text-align: left;
+  line-height: normal;
+  font-size: inherit;
+
+  &::after {
+    border: none;
+  }
+
+  &__text {
+    flex: 1;
+    margin-left: 24rpx;
+  }
+
+  &__title {
+    display: block;
+    font-size: 30rpx;
+    color: @gy1;
+    font-weight: 500;
+  }
+
+  &__desc {
+    display: block;
+    font-size: 22rpx;
+    color: @gy3;
+    margin-top: 4rpx;
+  }
+}
+
+// FAQ 列表
+.faq-list {
+  padding: 0 32rpx;
+}
+
+.faq-item {
+  border-bottom: 1rpx solid #f0f0f0;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &--expanded {
+    background-color: #fafafa;
+  }
+
+  &__question {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 28rpx 0;
+    font-size: 28rpx;
+    color: @gy1;
+
+    text {
+      flex: 1;
+      padding-right: 16rpx;
+    }
+  }
+
+  &__answer {
+    padding: 0 0 28rpx;
+    font-size: 26rpx;
+    color: @gy2;
+    line-height: 44rpx;
+  }
+}
+
+// 联系方式列表
+.contact-list {
+  padding: 8rpx 32rpx 16rpx;
+}
+
+.contact-item {
+  display: flex;
+  align-items: center;
+  padding: 24rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &__text {
+    flex: 1;
+    margin-left: 24rpx;
+  }
+
+  &__title {
+    display: block;
+    font-size: 28rpx;
+    color: @gy1;
+  }
+
+  &__value {
+    display: block;
+    font-size: 24rpx;
+    color: @gy3;
+    margin-top: 4rpx;
+  }
+
+  &__action {
+    font-size: 24rpx;
+    color: @brand7-normal;
+    padding: 8rpx 24rpx;
+    border: 1rpx solid @brand7-normal;
+    border-radius: 24rpx;
+  }
+}

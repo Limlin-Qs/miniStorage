@@ -1,60 +1,81 @@
-<view class="detail-container">
+<view class="detail-container" wx:if="{{item}}">
   <!-- 头部图例+标题区域 -->
   <view class="header-section">
-    <image class="legend-icon" src="{{item.legend}}" mode="widthFix"></image>
+    <image class="legend-icon" src="{{item.coverUrl || item.legend}}" mode="aspectFill"></image>
     <view class="title-group">
       <text class="item-name">{{item.name}}</text>
-      <text class="item-type">{{item.type}}</text>
+      <text class="item-type">{{item.type || ''}}</text>
     </view>
   </view>
 
   <!-- 核心信息卡片 -->
-  <view class="info-card">
-    <view class="info-item">
+  <view class="info-card" wx:if="{{item.department || item.leader || item.createTime || item.statusText || item.phone || item.email}}">
+    <view class="info-item" wx:if="{{item.department}}">
       <text class="label">所属部门：</text>
       <text class="value">{{item.department}}</text>
     </view>
-    <view class="info-item">
+    <view class="info-item" wx:if="{{item.leader}}">
       <text class="label">负责人：</text>
       <text class="value">{{item.leader}}</text>
     </view>
-    <view class="info-item">
+    <view class="info-item" wx:if="{{item.createTime}}">
       <text class="label">创建时间：</text>
       <text class="value">{{item.createTime}}</text>
     </view>
-    <view class="info-item">
+    <view class="info-item" wx:if="{{item.statusText}}">
       <text class="label">状态：</text>
       <text class="value status-{{item.status}}">{{item.statusText}}</text>
     </view>
-    <!-- 联系方式 -->
-    <view class="info-item">
+    <view class="info-item" wx:if="{{item.phone}}">
       <text class="label">联系电话：</text>
-      <text class="value" bindtap="callLeader">{{item.phone}}</text>
+      <text class="value clickable" bindtap="callLeader">{{item.phone}}</text>
     </view>
-    <view class="info-item">
+    <view class="info-item" wx:if="{{item.email}}">
       <text class="label">联系邮箱：</text>
-      <text class="value" bindtap="copyEmail">{{item.email}}</text>
+      <text class="value clickable" bindtap="copyEmail">{{item.email}}</text>
+    </view>
+    <!-- 联系作者按钮 -->
+    <view class="action-buttons">
+      <t-button wx:if="{{!isAuthor}}" theme="primary" size="medium" icon="chat" bind:tap="contactAuthor">联系作者</t-button>
+      <t-button wx:if="{{isAuthor}}" theme="danger" size="medium" icon="delete" bind:tap="deleteOpus">删除作品</t-button>
     </view>
   </view>
 
-  <!-- 文件下载区域（核心修改：传递fileID） -->
-  <view class="download-section">
+  <!-- 标签区域 -->
+  <view class="tags-section" wx:if="{{item.tags && item.tags.length > 0}}">
+    <text class="section-title">标签</text>
+    <view class="tags-list">
+      <t-tag wx:for="{{item.tags}}" wx:key="index" size="medium" variant="light" theme="primary">{{item}}</t-tag>
+    </view>
+  </view>
+
+  <!-- 文件下载区域 -->
+  <view class="download-section" wx:if="{{item.files && item.files.length > 0}}">
     <text class="section-title">文件下载</text>
     <view class="file-list">
       <block wx:for="{{item.files}}" wx:key="index">
-        <!-- 关键修改：将 data-fileurl 改为 data-fileid -->
         <view class="file-item" bindtap="downloadFile" data-fileid="{{item.fileID}}" data-filename="{{item.name}}">
-          <!-- <image class="file-icon" src="/images/file_icon.png" mode="widthFix"></image> -->
+          <t-icon name="file" size="40rpx" style="margin-right: 15rpx; color: #666;" />
           <text class="file-name">{{item.name}}</text>
-          <image class="download-icon" src="/images/download.png" mode="widthFix"></image>
+          <t-icon name="download" size="36rpx" style="color: #0052d9;" />
         </view>
       </block>
     </view>
   </view>
 
   <!-- 详情描述区域 -->
-  <view class="desc-section">
+  <view class="desc-section" wx:if="{{item.description}}">
     <text class="desc-title">详情介绍</text>
     <text class="desc-content">{{item.description}}</text>
   </view>
+</view>
+
+<!-- 加载中 -->
+<view class="detail-loading" wx:if="{{loading}}">
+  <t-loading theme="circular" size="40rpx" text="加载中..." />
+</view>
+
+<!-- 无数据 -->
+<view class="detail-empty" wx:if="{{!loading && !item}}">
+  <t-empty icon="file-search" description="内容不存在" />
 </view>

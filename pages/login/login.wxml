@@ -2,6 +2,25 @@
 <view class="page login">
   <view class="login__title"> 欢迎登录 AI创库 </view>
   <view class="login__content">
+    <!-- 微信一键登录 -->
+    <view class="login__wx-login">
+      <t-button
+        theme="primary"
+        size="large"
+        block
+        icon="logo-wechat-stroke"
+        loading="{{isWxLogging}}"
+        disabled="{{isWxLogging}}"
+        bindtap="onWxLogin"
+      >
+        微信一键登录
+      </t-button>
+    </view>
+
+    <view class="login__divider">
+      <t-divider>其他方式</t-divider>
+    </view>
+
     <view class="login__input">
       <view class="login__password" wx:if="{{isPasswordLogin}}">
         <t-input
@@ -58,23 +77,8 @@
       <t-button class="button" variant="outline" theme="default" size="medium" shape="round" bindtap="changeLogin">
         {{isPasswordLogin ? '验证码登录' : '密码登录' }}
       </t-button>
-      <t-button
-        class="button"
-        variant="outline"
-        theme="default"
-        size="medium"
-        icon="logo-wechat-stroke"
-        shape="circle"
-      ></t-button>
       <t-button class="button" variant="outline" theme="default" size="medium" icon="logo-qq" shape="circle"></t-button>
-      <t-button
-        class="button"
-        variant="outline"
-        theme="default"
-        size="medium"
-        icon="logo-wecom"
-        shape="circle"
-      ></t-button>
+      <t-button class="button" variant="outline" theme="default" size="medium" icon="logo-wecom" shape="circle"></t-button>
     </view>
   </view>
 </view>

@@ -1,9 +1,12 @@
 /* pages/chat/index.wxss */
+@import '/variable.less';
+
 .chat-container {
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
   height: 100vh;
+  padding-top: calc(@nav-bar-height + @navbar-padding-top);
   font-size: 32rpx;
   background-color: #fff;
 }
@@ -101,6 +104,24 @@
   height: 48rpx;
   line-height: 48rpx;
   margin-bottom: 40rpx;
+}
+
+.load-more {
+  display: flex;
+  justify-content: center;
+  padding: 16rpx 0;
+  font-size: 24rpx;
+  color: #999;
+}
+
+.failed-tip {
+  position: absolute;
+  right: calc(100% + 16rpx);
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 22rpx;
+  color: #e34d59;
+  white-space: nowrap;
 }
 
 .send {

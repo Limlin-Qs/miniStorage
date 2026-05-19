@@ -1,4 +1,4 @@
-import request from '~/api/request';
+import { getUserInfo, updateProfile } from '~/utils/auth';
 import { areaList } from './areaData.js';
 
 Page({
@@ -12,29 +12,19 @@ Page({
       photos: [],
     },
     genderOptions: [
-      {
-        label: '男',
-        value: 0,
-      },
-      {
-        label: '女',
-        value: 1,
-      },
-      {
-        label: '保密',
-        value: 2,
-      },
+      { label: '男', value: 1 },
+      { label: '女', value: 2 },
+      { label: '保密', value: 0 },
     ],
     birthVisible: false,
     birthStart: '1970-01-01',
-    birthEnd: '2025-03-01',
-    birthTime: 0,
+    birthEnd: '2026-12-31',
     birthFilter: (type, options) => (type === 'year' ? options.sort((a, b) => b.value - a.value) : options),
     addressText: '',
     addressVisible: false,
     provinces: [],
     cities: [],
-
+    isSaving: false,
     gridConfig: {
       column: 3,
       width: 160,
@@ -44,22 +34,38 @@ Page({
 
   onLoad() {
     this.initAreaData();
-    this.getPersonalInfo();
+    this.loadPersonalInfo();
   },
 
-  getPersonalInfo() {
-    request('/api/genPersonalInfo').then((res) => {
-      this.setData(
-        {
-          personInfo: res.data.data,
-        },
-        () => {
-          const { personInfo } = this.data;
-          this.setData({
-            addressText: `${areaList.provinces[personInfo.address[0]]} ${areaList.cities[personInfo.address[1]]}`,
-          });
-        },
-      );
+  /** 从云数据库加载用户信息 */
+  async loadPersonalInfo() {
+    const userInfo = await getUserInfo();
+    if (!userInfo) {
+      wx.showToast({ title: '请先登录', icon: 'none' });
+      setTimeout(() => wx.navigateBack(), 1000);
+      return;
+    }
+
+    const personInfo = {
+      name: userInfo.nickName || '',
+      gender: userInfo.gender || 0,
+      birth: userInfo.birth || '',
+      address: userInfo.address || [],
+      introduction: userInfo.brief || '',
+      photos: (userInfo.photos || []).map((url, index) => ({
+        url,
+        name: `photo_${index}`,
+        type: 'image',
+      })),
+    };
+
+    this.setData({ personInfo }, () => {
+      if (personInfo.address.length >= 2) {
+        const { provinces: pList, cities: cList } = areaList;
+        const provinceName = pList[personInfo.address[0]] || '';
+        const cityName = cList[personInfo.address[1]] || '';
+        this.setData({ addressText: `${provinceName} ${cityName}` });
+      }
     });
   },
 
@@ -84,8 +90,6 @@ Page({
   onAreaPick(e) {
     const { column, index } = e.detail;
     const { provinces } = this.data;
-
-    // 更改省份则更新城市列表
     if (column === 0) {
       const cities = this.getCities(provinces[index].value);
       this.setData({ cities });
@@ -94,9 +98,7 @@ Page({
 
   showPicker(e) {
     const { mode } = e.currentTarget.dataset;
-    this.setData({
-      [`${mode}Visible`]: true,
-    });
+    this.setData({ [`${mode}Visible`]: true });
     if (mode === 'address') {
       const cities = this.getCities(this.data.personInfo.address[0]);
       this.setData({ cities });
@@ -105,30 +107,21 @@ Page({
 
   hidePicker(e) {
     const { mode } = e.currentTarget.dataset;
-    this.setData({
-      [`${mode}Visible`]: false,
-    });
+    this.setData({ [`${mode}Visible`]: false });
   },
 
   onPickerChange(e) {
     const { value, label } = e.detail;
     const { mode } = e.currentTarget.dataset;
-
-    this.setData({
-      [`personInfo.${mode}`]: value,
-    });
+    this.setData({ [`personInfo.${mode}`]: value });
     if (mode === 'address') {
-      this.setData({
-        addressText: label.join(' '),
-      });
+      this.setData({ addressText: label.join(' ') });
     }
   },
 
   personInfoFieldChange(field, e) {
     const { value } = e.detail;
-    this.setData({
-      [`personInfo.${field}`]: value,
-    });
+    this.setData({ [`personInfo.${field}`]: value });
   },
 
   onNameChange(e) {
@@ -146,28 +139,47 @@ Page({
   onPhotosRemove(e) {
     const { index } = e.detail;
     const { photos } = this.data.personInfo;
-
     photos.splice(index, 1);
-    this.setData({
-      'personInfo.photos': photos,
-    });
+    this.setData({ 'personInfo.photos': photos });
   },
 
   onPhotosSuccess(e) {
     const { files } = e.detail;
-    this.setData({
-      'personInfo.photos': files,
-    });
+    this.setData({ 'personInfo.photos': files });
   },
 
   onPhotosDrop(e) {
     const { files } = e.detail;
-    this.setData({
-      'personInfo.photos': files,
-    });
+    this.setData({ 'personInfo.photos': files });
   },
 
-  onSaveInfo() {
-    // console.log(this.data.personInfo);
+  /** 保存用户信息到云数据库 */
+  async onSaveInfo() {
+    if (this.data.isSaving) return;
+    this.setData({ isSaving: true });
+
+    try {
+      const { personInfo } = this.data;
+      const profile = {
+        nickName: personInfo.name,
+        gender: personInfo.gender,
+        birth: personInfo.birth,
+        address: personInfo.address,
+        brief: personInfo.introduction,
+        photos: personInfo.photos.map((f) => f.url || f),
+      };
+
+      const res = await updateProfile(profile);
+      if (res.success) {
+        wx.showToast({ title: '保存成功', icon: 'success' });
+        setTimeout(() => wx.navigateBack(), 1000);
+      } else {
+        wx.showToast({ title: res.message || '保存失败', icon: 'none' });
+      }
+    } catch (err) {
+      wx.showToast({ title: '保存异常', icon: 'none' });
+    } finally {
+      this.setData({ isSaving: false });
+    }
   },
 });

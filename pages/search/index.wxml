@@ -14,7 +14,36 @@
       focus
     ></t-search>
   </view>
-  <view class="search-wrap">
+
+  <!-- 搜索结果 -->
+  <view class="search-results" wx:if="{{showResults}}">
+    <view wx:if="{{loading}}" class="search-loading">
+      <t-loading theme="circular" size="40rpx" text="搜索中..." />
+    </view>
+    <view wx:elif="{{searchResults.length === 0}}" class="search-empty">
+      <t-empty icon="search" description="未找到相关内容" />
+    </view>
+    <view wx:else class="search-result-list">
+      <view
+        class="search-result-item"
+        wx:for="{{searchResults}}"
+        wx:key="_id"
+        data-id="{{item._id}}"
+        bindtap="handleGoToOpus"
+      >
+        <image class="search-result-image" src="{{item.coverUrl || item.legend}}" mode="aspectFill" />
+        <view class="search-result-info">
+          <text class="search-result-name">{{item.name}}</text>
+          <view class="search-result-tags" wx:if="{{item.tags.length > 0}}">
+            <t-tag wx:for="{{item.tags}}" wx:for-item="tag" wx:key="index" size="small" variant="light" theme="primary">{{tag}}</t-tag>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 默认：历史 + 热门 -->
+  <view class="search-wrap" wx:if="{{!showResults}}">
     <view class="history-wrap">
       <view class="search-header">
         <text class="search-title">历史记录</text>
@@ -52,6 +81,7 @@
       </view>
     </view>
   </view>
+
   <t-dialog
     visible="{{dialogShow}}"
     content="{{dialog.message}}"

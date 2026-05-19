@@ -1,104 +1,73 @@
-import request from '~/api/request';
+import { getMyContentList } from '~/utils/content';
 
 Page({
-  /**
-   * 页面的初始数据
-   */
   data: {
-    totalSituationDataList: null,
-    totalSituationKeyList: null,
-    completeRateDataList: null,
-    complete_rate_keyList: null,
-    interactionSituationDataList: null,
-    interaction_situation_keyList: null,
-    areaDataList: null,
-    areaDataKeysList: null,
-    memberitemWidth: null,
-    smallitemWidth: null,
+    status: 'all',
+    statusText: '全部发布',
+    list: [],
+    page: 1,
+    hasMore: true,
+    loading: false,
   },
 
-  onLoad() {
-    this.init();
-  },
-
-  init() {
-    this.getMemberData();
-    this.getInteractionData();
-    this.getCompleteRateData();
-    this.getAreaData();
-  },
-
-  /**
-   * 获取 “整体情况” 数据
-   */
-  getMemberData() {
-    request('/dataCenter/member').then((res) => {
-      const totalSituationData = res.data.template.succ.data.list;
-      this.setData({
-        totalSituationDataList: totalSituationData,
-      });
-
-      // 计算每个.item元素的宽度
-      const itemWidth = `${(750 - 32 * (totalSituationData.length - 1)) / totalSituationData.length}rpx`;
-
-      // 更新.item元素的样式
-      this.setData({
-        memberitemWidth: itemWidth,
-      });
+  onLoad(options) {
+    const statusMap = {
+      all: '全部发布',
+      published: '已发布',
+      reviewing: '审核中',
+      draft: '草稿箱',
+    };
+    const status = options.status || 'all';
+    this.setData({
+      status,
+      statusText: statusMap[status] || '全部发布',
     });
+    this.loadData(true);
   },
 
-  /**
-   * 获取 “互动情况” 数据
-   */
-  getInteractionData() {
-    request('/dataCenter/interaction').then((res) => {
-      const interactionSituationData = res.data.template.succ.data.list;
-      this.setData({
-        interactionSituationDataList: interactionSituationData,
-        interactionSituationKeysList: Object.keys(interactionSituationData[0]),
-      });
+  /** 加载我的发布列表 */
+  async loadData(isRefresh = false) {
+    if (this.data.loading) return;
+    this.setData({ loading: true });
 
-      // 计算每个.item元素的宽度
-      const itemWidth = `${(750 - 32 * (interactionSituationData.length - 1)) / interactionSituationData.length}rpx`;
-      // 更新.item元素的样式
-      this.setData({
-        smallitemWidth: itemWidth,
-      });
-    });
+    try {
+      const page = isRefresh ? 1 : this.data.page;
+      const res = await getMyContentList(this.data.status, page);
+
+      if (res.success) {
+        const newList = isRefresh ? res.data.list : [...this.data.list, ...res.data.list];
+        this.setData({
+          list: newList,
+          page: page + 1,
+          hasMore: res.data.hasMore,
+        });
+      } else {
+        wx.showToast({ title: res.message || '加载失败', icon: 'none' });
+      }
+    } catch (err) {
+      console.error('loadData error:', err);
+    } finally {
+      this.setData({ loading: false });
+    }
   },
 
-  /**
-   * 完播率
-   */
-  getCompleteRateData() {
-    request('/dataCenter/complete-rate').then((res) => {
-      const completeRateData = res.data.template.succ.data.list;
-      this.setData({
-        completeRateDataList: completeRateData,
-        completeRateKeysList: Object.keys(completeRateData[0]),
-      });
-
-      // 计算每个.item元素的宽度
-      const itemHeight = `${380 / completeRateData.length}rpx`;
-
-      // 更新.item元素的样式
-      this.setData({
-        itemHeight: itemHeight,
-      });
-    });
+  /** 触底加载更多 */
+  onReachBottom() {
+    if (this.data.hasMore && !this.data.loading) {
+      this.loadData();
+    }
   },
 
-  /**
-   * 按区域统计
-   */
-  getAreaData() {
-    request('/dataCenter/area').then((res) => {
-      const areaData = res.data.template.succ.data.list;
-      this.setData({
-        areaDataList: areaData,
-        areaDataKeysList: Object.keys(areaData[0]),
-      });
-    });
+  /** 下拉刷新 */
+  onPullDownRefresh() {
+    this.loadData(true).then(() => wx.stopPullDownRefresh());
+  },
+
+  /** 查看详情 */
+  goToDetail(e) {
+    const id = e.currentTarget.dataset.id;
+    if (id) {
+      wx.navigateTo({ url: `/pages/opus/index?id=${id}` });
+    }
   },
 });

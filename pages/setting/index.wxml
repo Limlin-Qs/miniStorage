@@ -8,14 +8,17 @@
       title="{{carditem.title}}"
       hover
       arrow
-      left-icon="app"
+      leftIcon="{{carditem.icon}}"
       url="{{carditem.url}}"
       bordered="true"
-      leftIcon="{{carditem.icon}}"
       data-data="{{carditem}}"
       bindclick="onEleClick"
     />
   </t-cell-group>
+
+  <view class="setting__logout" wx:if="{{isLoggedIn}}">
+    <t-button theme="danger" variant="outline" size="large" block bindtap="onLogout">退出登录</t-button>
+  </view>
 </view>
 
 <t-toast id="t-toast" />

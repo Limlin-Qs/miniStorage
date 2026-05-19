@@ -1,7 +1,7 @@
 <t-toast id="t-toast" />
 
 <view class="my">
-  <image class="nav-bg" src="/static/bg_navbar.png" />
+  <image class="nav-bg" src="/static/bg_navbar.jpg" />
   <nav title-text="我的" />
   <view class="my-info">
     <t-cell-group>

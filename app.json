@@ -2,14 +2,19 @@
   "pages": [
     "pages/home/index",
     "pages/message/index",
-    "pages/my/index",
-    "pages/opus/index"
+    "pages/my/index"
   ],
   "usingComponents": {
-    "t-toast": "tdesign-miniprogram/toast/toast",
-    "t-input": "tdesign-miniprogram/input/input"
+    "t-toast": "tdesign-miniprogram/toast/toast"
   },
   "subpackages": [
+    {
+      "root": "pages/opus",
+      "name": "opus",
+      "pages": [
+        "index"
+      ]
+    },
     {
       "root": "pages/search",
       "name": "search",
@@ -65,6 +70,20 @@
       "pages": [
         "index"
       ]
+    },
+    {
+      "root": "pages/service",
+      "name": "service",
+      "pages": [
+        "index"
+      ]
+    },
+    {
+      "root": "pages/feedback",
+      "name": "feedback",
+      "pages": [
+        "index"
+      ]
     }
   ],
   "window": {
@@ -93,5 +112,6 @@
   "resolveAlias": {
     "~/*": "/*"
   },
+  "lazyCodeLoading": "requiredComponents",
   "sitemapLocation": "sitemap.json"
 }

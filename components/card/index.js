@@ -1,33 +1,81 @@
 Component({
   properties: {
+    // 兼容旧 Mock 数据格式
     url: String,
     desc: String,
     tags: Array,
+    // 云数据库数据格式
+    contentData: {
+      type: Object,
+      value: {},
+    },
   },
-  data: {},
-  methods: {},
+  data: {
+    displayUrl: '',
+    displayDesc: '',
+    displayTags: [],
+    displayId: '',
+  },
+  observers: {
+    'contentData, url, desc, tags': function (contentData, url, desc, tags) {
+      if (contentData && contentData._id) {
+        // 云数据库格式：tags 可能是字符串数组，统一转为 {text, theme} 对象
+        const rawTags = contentData.tags || [];
+        const displayTags = rawTags.map((t) => {
+          if (typeof t === 'string') {
+            return { text: t, theme: 'primary' };
+          }
+          return t; // 已经是对象格式
+        });
+
+        const rawUrl = contentData.coverUrl || contentData.legend || '';
+
+        // cloud:// 协议图片转临时链接显示
+        if (rawUrl && rawUrl.startsWith('cloud://')) {
+          wx.cloud.getTempFileURL({
+            fileList: [rawUrl],
+            success: (res) => {
+              if (res.fileList && res.fileList[0] && res.fileList[0].tempFileURL) {
+                this.setData({ displayUrl: res.fileList[0].tempFileURL });
+              }
+            },
+            fail: () => {
+              this.setData({ displayUrl: rawUrl });
+            },
+          });
+        } else {
+          this.setData({ displayUrl: rawUrl });
+        }
+
+        this.setData({
+          displayDesc: contentData.name || contentData.desc || '',
+          displayTags,
+          displayId: contentData._id,
+        });
+      } else {
+        // Mock 格式兼容
+        const rawTags = tags || [];
+        const displayTags = rawTags.map((t) => {
+          if (typeof t === 'string') {
+            return { text: t, theme: 'primary' };
+          }
+          return t;
+        });
+
+        this.setData({
+          displayUrl: url || '',
+          displayDesc: desc || '',
+          displayTags,
+          displayId: '',
+        });
+      }
+    },
+  },
+  methods: {
+    onCardTap() {
+      if (this.data.displayId) {
+        this.triggerEvent('goToOpus', { id: this.data.displayId });
+      }
+    },
+  },
 });
-
-// components/card/card.js
-// Component({
-//   properties: {
-//     // 定义接收的属性，类型为Object，对应单个项目的数据
-//     projectData: {
-//       type: Object,
-//       value: {}
-//     }
-//   },
-
-//   methods: {
-//     // 卡片被点击时触发的方法
-//     onCardTap(e) {
-//       // 获取通过 data-id 传递过来的项目ID
-//       const projectId = e.currentTarget.dataset.id;
-      
-//       // 触发一个自定义事件，将项目ID传递给父页面
-//       this.triggerEvent('goToOpus', {
-//         id: projectId
-//       });
-//     }
-//   }
-// });

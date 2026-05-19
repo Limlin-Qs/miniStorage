@@ -1,0 +1,81 @@
+<t-navbar title="联系客服" left-arrow />
+
+<view class="service-page">
+  <!-- 顶部客服入口 -->
+  <view class="service-header">
+    <view class="service-header__icon">
+      <t-icon name="service" size="80rpx" color="#0052d9" />
+    </view>
+    <text class="service-header__title">AI创库客服中心</text>
+    <text class="service-header__desc">我们随时为您提供帮助</text>
+  </view>
+
+  <!-- 在线客服 -->
+  <view class="service-section">
+    <view class="service-section__title">在线客服</view>
+    <button class="service-contact-btn" open-type="contact" send-message-title="AI创库用户反馈">
+      <t-icon name="chat" size="40rpx" color="#0052d9" />
+      <view class="service-contact-btn__text">
+        <text class="service-contact-btn__title">微信在线客服</text>
+        <text class="service-contact-btn__desc">工作日 9:00-18:00 在线</text>
+      </view>
+      <t-icon name="chevron-right" size="36rpx" color="#bbb" />
+    </button>
+  </view>
+
+  <!-- 常见问题 -->
+  <view class="service-section">
+    <view class="service-section__title">常见问题</view>
+    <view class="faq-list">
+      <view
+        class="faq-item {{item.expanded ? 'faq-item--expanded' : ''}}"
+        wx:for="{{faqList}}"
+        wx:key="index"
+      >
+        <view class="faq-item__question" data-index="{{index}}" bindtap="toggleFaq">
+          <text>{{item.question}}</text>
+          <t-icon name="{{item.expanded ? 'chevron-up' : 'chevron-down'}}" size="32rpx" color="#999" />
+        </view>
+        <view class="faq-item__answer" wx:if="{{item.expanded}}">
+          <text>{{item.answer}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 其他联系方式 -->
+  <view class="service-section">
+    <view class="service-section__title">其他联系方式</view>
+    <view class="contact-list">
+      <view class="contact-item" bindtap="copyEmail">
+        <t-icon name="mail" size="40rpx" color="#0052d9" />
+        <view class="contact-item__text">
+          <text class="contact-item__title">邮箱反馈</text>
+          <text class="contact-item__value">support@aichuangku.com</text>
+        </view>
+        <text class="contact-item__action">复制</text>
+      </view>
+      <view class="contact-item" bindtap="callPhone">
+        <t-icon name="call" size="40rpx" color="#0052d9" />
+        <view class="contact-item__text">
+          <text class="contact-item__title">客服电话</text>
+          <text class="contact-item__value">400-888-8888</text>
+        </view>
+        <text class="contact-item__action">拨打</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 意见反馈入口 -->
+  <view class="service-section">
+    <view class="service-section__title">意见反馈</view>
+    <t-cell
+      title="提交反馈"
+      note="帮助我们做得更好"
+      arrow
+      hover
+      leftIcon="edit-1"
+      bindtap="goFeedback"
+    />
+  </view>
+</view>

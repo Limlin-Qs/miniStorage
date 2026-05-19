@@ -1,20 +1,12 @@
-<view class="home-card">
-  <t-image t-class="home-card__image" src="{{url}}" mode="aspectFill" />
+<view class="home-card" bindtap="onCardTap">
+  <image class="home-card__image" src="{{displayUrl}}" mode="aspectFill" lazy-load wx:if="{{displayUrl}}" />
+  <view class="home-card__image home-card__image--empty" wx:else>
+    <text class="home-card__image-placeholder">暂无图片</text>
+  </view>
   <view class="home-card__info">
-    <text>{{desc}}</text>
+    <text>{{displayDesc}}</text>
     <view class="home-card__tag-group">
-      <t-tag wx:for="{{tags}}" wx:key="index" size="small" variant="light" theme="{{item.theme}}">{{item.text}}</t-tag>
+      <t-tag wx:for="{{displayTags}}" wx:key="index" size="small" variant="light" theme="{{item.theme}}">{{item.text}}</t-tag>
     </view>
   </view>
 </view>
-<!-- components/card/card.wxml -->
-<!-- 添加 bindtap 事件，并传递项目 id -->
-<!-- <view class="home-card" bindtap="onCardTap" data-id="{{projectData._id}}">
-  <t-image t-class="home-card__image" src="{{projectData.legend}}" mode="aspectFill" />
-  <view class="home-card__info">
-    <text>{{projectData.name}}</text>
-    <view class="home-card__tag-group">
-      <t-tag wx:for="{{projectData.tags}}" wx:key="index" size="small" variant="light" theme="{{item.theme}}">{{item.text}}</t-tag>
-    </view>
-  </view>
-</view> -->

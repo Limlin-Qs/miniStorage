@@ -1,7 +1,7 @@
 <nav nav-type="search" />
 <view class="home-container">
   <view class="home-content">
-    <t-tabs defaultValue="recommend">
+    <t-tabs defaultValue="recommend" bind:change="onTabChange">
       <t-tab-panel label="推荐" value="recommend">
         <t-pull-down-refresh
           value="{{enable}}"
@@ -10,6 +10,7 @@
         >
           <view class="home-card-list">
             <t-swiper
+              wx:if="{{swiperList.length > 0}}"
               list="{{swiperList}}"
               navigation="{{ { type: 'dots-bar' } }}"
               height="488rpx"
@@ -17,19 +18,10 @@
             />
             <card
               wx:for="{{cardInfo}}"
-              wx:key="index"
-              desc="{{item.desc}}"
-              url="{{item.url}}"
-              tags="{{item.tags}}"
-              bindtap="handleGoToOpus"
-            />
-             <!-- 循环渲染card组件，并绑定自定义事件 goToOpus
-            <card 
-              wx:for="{{projects}}" 
-              wx:key="_id" 
-              project-data="{{item}}" 
+              wx:key="_id"
+              content-data="{{item}}"
               bind:goToOpus="handleGoToOpus"
-            ></card> -->
+            />
           </view>
         </t-pull-down-refresh>
       </t-tab-panel>
@@ -37,11 +29,9 @@
         <view class="home-card-list">
           <card
             wx:for="{{focusCardInfo}}"
-            wx:key="index"
-            desc="{{item.desc}}"
-            url="{{item.url}}"
-            tags="{{item.tags}}"
-            bindtap="handleGoToOpus"
+            wx:key="_id"
+            content-data="{{item}}"
+            bind:goToOpus="handleGoToOpus"
           />
         </view>
       </t-tab-panel>

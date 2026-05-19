@@ -1,123 +1,194 @@
-// 项目详细内容页面
+import { getContentDetail, deleteContent } from '~/utils/content';
+import { createConversation } from '~/utils/message';
+import { isLoggedIn, getUserInfo } from '~/utils/auth';
+
 Page({
-  /**
-   * 页面的初始数据（核心修改：文件信息改为fileID）
-   */
   data: {
-    item: {
-      legend: "/images/icon_project.png",
-      name: "青岛地铁自动化中心草根AI创作者大会智能体项目",
-      type: "AI智能体类项目",
-      department: "自动化中心",
-      leader: "张工",
-      createTime: "2026-03-24",
-      status: "active",
-      statusText: "已完成",
-      phone: "13800138000",
-      email: "zhanggong@qddt.com",
-      // 核心修改：文件信息从云数据库读取，存储的是云存储的fileID
-      files: [
-        {
-          name: "项目需求说明书.pdf",
-          // 格式：cloud://环境ID.环境ID/文件路径
-          fileID: "cloud://your-env-id.your-env-id/automation_center/ai_project/requirement.pdf"
-        },
-        {
-          name: "智能体模型训练数据集.zip",
-          fileID: "cloud://your-env-id.your-env-id/automation_center/ai_project/dataset.zip"
-        }
-      ],
-      description: "本项目为自动化中心草根AI创作者大会配套智能体开发项目，\n聚焦地铁运营场景AI工具落地，涵盖智能故障诊断、运营数据分析等功能模块，助力提升地铁自动化运维效率。"
+    item: null,
+    loading: true,
+    isAuthor: false,
+  },
+
+  onLoad(options) {
+    if (options.id) {
+      this.loadDetail(options.id);
+    } else {
+      this.setData({ loading: false });
     }
   },
 
-  /**
-   * 生命周期函数--监听页面加载
-   */
-  onLoad(options) {
-    // 实际项目中，通过options接收项目ID，从云数据库查询数据
-    this.testDatabaseConnection();
-
-  },
-  // 项目数据调取
-  testDatabaseConnection() {
-    // 1. 获取数据库引用
-    const db = wx.cloud.database();
-    
-    // 2. 指定要操作的集合
-    const testCollection = db.collection('projectSet');
-    const projectId = 'xxxxxxxxx'
-    // 3. 尝试获取一条数据
-    //    '你的测试数据_id' 请替换为你在云开发控制台看到的那条数据的 _id
-    testCollection.doc(projectId).get({
-      success: res => {
-        // 查询成功，说明数据库连接和读取都正常
-        console.log('✅ 数据库连接成功，数据为：', res.data);
-        wx.showToast({
-          title: '连接成功！',
-          icon: 'success'
-        });
-      },
-      fail: err => {
-        // 查询失败，可能是环境ID、权限或网络问题
-        console.error('❌ 数据库连接失败：', err);
-        wx.showToast({
-          title: '连接失败，请查看控制台',
-          icon: 'none'
-        });
+  /** 从云数据库加载内容详情 */
+  async loadDetail(id) {
+    wx.showLoading({ title: '加载中...' });
+    try {
+      const res = await getContentDetail(id);
+      if (res.success) {
+        const item = res.data;
+        // cloud:// 图片转为临时链接
+        await this.resolveCloudUrls(item);
+        // 判断当前用户是否为作者
+        const myInfo = await getUserInfo();
+        const isAuthor = !!(myInfo && myInfo._openid && myInfo._openid === item._openid);
+        this.setData({ item, loading: false, isAuthor });
+      } else {
+        wx.showToast({ title: res.message || '加载失败', icon: 'none' });
+        this.setData({ loading: false });
       }
+    } catch (err) {
+      console.error('loadDetail error:', err);
+      wx.showToast({ title: '加载异常', icon: 'none' });
+      this.setData({ loading: false });
+    }
+    wx.hideLoading();
+  },
+
+  /** 将 cloud:// 链接转为可访问的临时链接 */
+  resolveCloudUrls(item) {
+    return new Promise((resolve) => {
+      const cloudUrls = [];
+      if (item.coverUrl && item.coverUrl.startsWith('cloud://')) cloudUrls.push(item.coverUrl);
+      if (item.coverUrls) {
+        item.coverUrls.forEach((u) => { if (u && u.startsWith('cloud://') && !cloudUrls.includes(u)) cloudUrls.push(u); });
+      }
+      if (cloudUrls.length === 0) { resolve(); return; }
+
+      wx.cloud.getTempFileURL({
+        fileList: cloudUrls,
+        success: (res) => {
+          const urlMap = {};
+          res.fileList.forEach((f) => { if (f.tempFileURL) urlMap[f.fileID] = f.tempFileURL; });
+          if (item.coverUrl && urlMap[item.coverUrl]) item.coverUrl = urlMap[item.coverUrl];
+          if (item.coverUrls) item.coverUrls = item.coverUrls.map((u) => urlMap[u] || u);
+          resolve();
+        },
+        fail: () => resolve(),
+      });
     });
   },
-  // 拨打电话
+
+  /** 拨打电话 */
   callLeader() {
     const phone = this.data.item.phone;
-    wx.makePhoneCall({ phoneNumber: phone });
+    if (phone) wx.makePhoneCall({ phoneNumber: phone });
   },
 
-  // 复制邮箱
+  /** 复制邮箱 */
   copyEmail() {
     const email = this.data.item.email;
-    wx.setClipboardData({ data: email, success: () => wx.showToast({ title: "邮箱已复制" }) });
+    if (email) {
+      wx.setClipboardData({ data: email, success: () => wx.showToast({ title: '邮箱已复制' }) });
+    }
   },
 
-  // 核心修改：云开发下载逻辑
+  /** 联系作者（创建/打开会话） */
+  async contactAuthor() {
+    if (!isLoggedIn()) {
+      wx.showToast({ title: '请先登录', icon: 'none' });
+      return;
+    }
+
+    const authorOpenid = this.data.item._openid;
+    if (!authorOpenid) {
+      wx.showToast({ title: '无法获取作者信息', icon: 'none' });
+      return;
+    }
+
+    const myInfo = await getUserInfo();
+    if (myInfo && myInfo._openid === authorOpenid) {
+      wx.showToast({ title: '不能和自己聊天', icon: 'none' });
+      return;
+    }
+
+    wx.showLoading({ title: '正在创建会话...' });
+    try {
+      const res = await createConversation(authorOpenid);
+      wx.hideLoading();
+
+      if (res.success) {
+        const conv = res.data.conversation;
+        const authorName = this.data.item.leader || '作者';
+        wx.navigateTo({
+          url: `/pages/chat/index?conversationId=${conv._id}&name=${encodeURIComponent(authorName)}&avatar=&targetOpenid=${encodeURIComponent(authorOpenid)}`,
+        });
+      } else {
+        wx.showToast({ title: res.message || '创建会话失败', icon: 'none' });
+      }
+    } catch (err) {
+      wx.hideLoading();
+      wx.showToast({ title: '操作异常', icon: 'none' });
+    }
+  },
+
+  /** 云存储文件下载 */
   downloadFile(e) {
     const { fileid, filename } = e.currentTarget.dataset;
-    wx.showLoading({ title: "生成下载链接..." });
+    wx.showLoading({ title: '生成下载链接...' });
 
-    // 第一步：从云存储获取临时下载链接（默认有效期1小时）
     wx.cloud.getTempFileURL({
       fileList: [{ fileID: fileid }],
       success: (res) => {
         const tempURL = res.fileList[0].tempFileURL;
-        wx.showLoading({ title: "下载中..." });
+        wx.showLoading({ title: '下载中...' });
 
-        // 第二步：使用临时链接下载文件
         wx.downloadFile({
           url: tempURL,
           success: (downloadRes) => {
             if (downloadRes.statusCode === 200) {
-              // 第三步：保存文件到本地
               wx.saveFile({
                 tempFilePath: downloadRes.tempFilePath,
                 filePath: wx.env.USER_DATA_PATH + '/' + filename,
                 success: () => {
                   wx.hideLoading();
-                  wx.showToast({ title: "下载成功", icon: "success" });
-                }
+                  wx.showToast({ title: '下载成功', icon: 'success' });
+                },
               });
             }
           },
           fail: () => {
             wx.hideLoading();
-            wx.showToast({ title: "下载失败", icon: "none" });
-          }
+            wx.showToast({ title: '下载失败', icon: 'none' });
+          },
         });
       },
       fail: () => {
         wx.hideLoading();
-        wx.showToast({ title: "生成链接失败", icon: "none" });
-      }
+        wx.showToast({ title: '生成链接失败', icon: 'none' });
+      },
     });
-  }
-})
+  },
+
+  /** 删除作品 */
+  deleteOpus() {
+    if (!this.data.isAuthor) {
+      wx.showToast({ title: '无权操作', icon: 'none' });
+      return;
+    }
+
+    wx.showModal({
+      title: '确认删除',
+      content: '删除后不可恢复，确定要删除该作品吗？',
+      confirmColor: '#e34d59',
+      success: async (res) => {
+        if (!res.confirm) return;
+
+        wx.showLoading({ title: '删除中...' });
+        try {
+          const result = await deleteContent(this.data.item._id);
+          wx.hideLoading();
+
+          if (result.success) {
+            wx.showToast({ title: '已删除', icon: 'success' });
+            setTimeout(() => {
+              wx.navigateBack({ delta: 1 });
+            }, 1500);
+          } else {
+            wx.showToast({ title: result.message || '删除失败', icon: 'none' });
+          }
+        } catch (err) {
+          wx.hideLoading();
+          wx.showToast({ title: '删除异常', icon: 'none' });
+        }
+      },
+    });
+  },
+});

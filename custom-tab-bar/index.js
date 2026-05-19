@@ -2,8 +2,8 @@ const app = getApp();
 
 Component({
   data: {
-    value: '', // 初始值设置为空，避免第一次加载时闪烁
-    unreadNum: 0, // 未读消息数量
+    value: '',
+    unreadNum: 0,
     list: [
       {
         icon: 'home',
@@ -28,11 +28,8 @@ Component({
       const curPage = pages[pages.length - 1];
       if (curPage) {
         const nameRe = /pages\/(\w+)\/index/.exec(curPage.route);
-        if (nameRe === null) return;
-        if (nameRe[1] && nameRe) {
-          this.setData({
-            value: nameRe[1],
-          });
+        if (nameRe && nameRe[1]) {
+          this.setData({ value: nameRe[1] });
         }
       }
 
@@ -42,6 +39,10 @@ Component({
         this.setUnreadNum(unreadNum);
       });
     },
+    detached() {
+      // 移除监听
+      app.eventBus.off('unread-num-change');
+    },
   },
   methods: {
     handleChange(e) {
@@ -49,7 +50,6 @@ Component({
       wx.switchTab({ url: `/pages/${value}/index` });
     },
 
-    /** 设置未读消息数量 */
     setUnreadNum(unreadNum) {
       this.setData({ unreadNum });
     },

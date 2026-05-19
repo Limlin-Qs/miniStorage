@@ -61,6 +61,9 @@
   color: #333;
   flex: 1;
 }
+.clickable {
+  color: #007aff;
+}
 .status-active {
   color: #07c160;
 }
@@ -71,16 +74,18 @@
   color: #ff9f43;
 }
 
-/* 联系方式样式 */
-.value[bindtap] {
-  color: #007aff;
-}
-.value[bindtap]:active {
-  color: #0056d2;
+.contact-author,
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 24rpx;
+  padding-top: 24rpx;
+  border-top: 1rpx solid #eee;
+  margin-top: 16rpx;
 }
 
-/* 下载区域样式 */
-.download-section {
+/* 标签区域 */
+.tags-section {
   background-color: #fff;
   border-radius: 10rpx;
   padding: 20rpx;
@@ -92,6 +97,19 @@
   color: #333;
   display: block;
   margin-bottom: 15rpx;
+}
+.tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+/* 下载区域样式 */
+.download-section {
+  background-color: #fff;
+  border-radius: 10rpx;
+  padding: 20rpx;
+  margin-bottom: 20rpx;
 }
 .file-list {
   display: flex;
@@ -105,19 +123,10 @@
   border: 1rpx solid #eee;
   border-radius: 8rpx;
 }
-.file-icon {
-  width: 40rpx;
-  height: 40rpx;
-  margin-right: 15rpx;
-}
 .file-name {
   flex: 1;
   font-size: 28rpx;
   color: #333;
-}
-.download-icon {
-  width: 35rpx;
-  height: 35rpx;
 }
 
 /* 详情描述 */
@@ -138,4 +147,12 @@
   color: #666;
   line-height: 1.6;
   white-space: pre-line;
+}
+
+/* 加载 & 空状态 */
+.detail-loading,
+.detail-empty {
+  padding: 200rpx 0;
+  display: flex;
+  justify-content: center;
 }
