@@ -9,7 +9,9 @@ Page({
     focusCardInfo: [],
     currentTab: 'recommend',
     page: 1,
+    followPage: 1,
     hasMore: true,
+    followHasMore: true,
     loading: false,
   },
 
@@ -36,33 +38,61 @@ Page({
     if (this.data.loading) return;
     this.setData({ loading: true });
 
+    const tab = this.data.currentTab;
+
     try {
-      const page = isRefresh ? 1 : this.data.page;
-      const [listRes, swiperRes] = await Promise.all([
-        getContentList(this.data.currentTab, page),
-        isRefresh ? getSwipers() : Promise.resolve(null),
-      ]);
-
-      if (listRes.success) {
-        const newCardInfo = isRefresh
-          ? listRes.data.list
-          : [...this.data.cardInfo, ...listRes.data.list];
-
-        this.setData({
-          cardInfo: newCardInfo,
-          focusCardInfo: newCardInfo.slice(0, 3),
-          page: page + 1,
-          hasMore: listRes.data.hasMore,
-        });
-      }
-
-      if (swiperRes && swiperRes.success) {
-        this.setData({ swiperList: swiperRes.data });
+      if (tab === 'recommend') {
+        await this.loadRecommend(isRefresh);
+      } else if (tab === 'follow') {
+        await this.loadFollow(isRefresh);
       }
     } catch (err) {
       console.error('loadData error:', err);
     } finally {
       this.setData({ loading: false });
+    }
+  },
+
+  /** 加载推荐列表 */
+  async loadRecommend(isRefresh = false) {
+    const page = isRefresh ? 1 : this.data.page;
+    const [listRes, swiperRes] = await Promise.all([
+      getContentList('recommend', page),
+      isRefresh ? getSwipers() : Promise.resolve(null),
+    ]);
+
+    if (listRes.success) {
+      const newCardInfo = isRefresh
+        ? listRes.data.list
+        : [...this.data.cardInfo, ...listRes.data.list];
+
+      this.setData({
+        cardInfo: newCardInfo,
+        page: page + 1,
+        hasMore: listRes.data.hasMore,
+      });
+    }
+
+    if (swiperRes && swiperRes.success) {
+      this.setData({ swiperList: swiperRes.data });
+    }
+  },
+
+  /** 加载关注列表 */
+  async loadFollow(isRefresh = false) {
+    const page = isRefresh ? 1 : this.data.followPage;
+    const listRes = await getContentList('follow', page);
+
+    if (listRes.success) {
+      const newFocusCardInfo = isRefresh
+        ? listRes.data.list
+        : [...this.data.focusCardInfo, ...listRes.data.list];
+
+      this.setData({
+        focusCardInfo: newFocusCardInfo,
+        followPage: page + 1,
+        followHasMore: listRes.data.hasMore,
+      });
     }
   },
 
@@ -76,14 +106,27 @@ Page({
 
   /** 触底加载更多 */
   onReachBottom() {
-    if (this.data.hasMore && !this.data.loading) {
+    const { currentTab, hasMore, followHasMore, loading } = this.data;
+    if (loading) return;
+    if (currentTab === 'recommend' && hasMore) {
+      this.loadData();
+    } else if (currentTab === 'follow' && followHasMore) {
       this.loadData();
     }
   },
 
   /** Tab 切换 */
   onTabChange(e) {
-    this.setData({ currentTab: e.detail.value, cardInfo: [], page: 1, hasMore: true });
+    const tab = e.detail.value;
+    this.setData({
+      currentTab: tab,
+      cardInfo: [],
+      focusCardInfo: [],
+      page: 1,
+      followPage: 1,
+      hasMore: true,
+      followHasMore: true,
+    });
     this.loadData(true);
   },
 

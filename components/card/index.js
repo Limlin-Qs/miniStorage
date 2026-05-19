@@ -15,6 +15,8 @@ Component({
     displayDesc: '',
     displayTags: [],
     displayId: '',
+    displayAuthor: '',
+    displayAvatar: '',
   },
   observers: {
     'contentData, url, desc, tags': function (contentData, url, desc, tags) {
@@ -51,6 +53,8 @@ Component({
           displayDesc: contentData.name || contentData.desc || '',
           displayTags,
           displayId: contentData._id,
+          displayAuthor: contentData.leader || '',
+          displayAvatar: contentData.authorAvatar || '',
         });
       } else {
         // Mock 格式兼容

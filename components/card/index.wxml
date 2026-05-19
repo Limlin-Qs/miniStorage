@@ -4,7 +4,12 @@
     <text class="home-card__image-placeholder">暂无图片</text>
   </view>
   <view class="home-card__info">
-    <text>{{displayDesc}}</text>
+    <text class="home-card__name">{{displayDesc}}</text>
+    <view class="home-card__author" wx:if="{{displayAuthor}}">
+      <t-icon wx:if="{{displayAvatar}}" name="user-circle" size="28rpx" style="margin-right: 8rpx;" />
+      <t-icon wx:else name="user-circle" size="28rpx" style="margin-right: 8rpx;" />
+      <text class="home-card__author-name">{{displayAuthor}}</text>
+    </view>
     <view class="home-card__tag-group">
       <t-tag wx:for="{{displayTags}}" wx:key="index" size="small" variant="light" theme="{{item.theme}}">{{item.text}}</t-tag>
     </view>

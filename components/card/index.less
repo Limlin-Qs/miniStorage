@@ -32,6 +32,27 @@
     font-size: @font-size-small;
   }
 
+  &__name {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__author {
+    display: flex;
+    align-items: center;
+    margin-top: 8rpx;
+  }
+
+  &__author-name {
+    font-size: 22rpx;
+    color: #999;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
   &__tag-group {
     display: flex;
     gap: 16rpx;

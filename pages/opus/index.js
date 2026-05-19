@@ -1,12 +1,15 @@
 import { getContentDetail, deleteContent } from '~/utils/content';
 import { createConversation } from '~/utils/message';
 import { isLoggedIn, getUserInfo } from '~/utils/auth';
+import { followUser, unfollowUser, checkFollow } from '~/utils/follow';
 
 Page({
   data: {
     item: null,
     loading: true,
     isAuthor: false,
+    isFollowed: false,
+    followLoading: false,
   },
 
   onLoad(options) {
@@ -30,6 +33,11 @@ Page({
         const myInfo = await getUserInfo();
         const isAuthor = !!(myInfo && myInfo._openid && myInfo._openid === item._openid);
         this.setData({ item, loading: false, isAuthor });
+        // 非作者时检查关注状态
+        if (!isAuthor && item._openid) {
+          const isFollowed = await checkFollow(item._openid);
+          this.setData({ isFollowed });
+        }
       } else {
         wx.showToast({ title: res.message || '加载失败', icon: 'none' });
         this.setData({ loading: false });
@@ -155,6 +163,35 @@ Page({
         wx.showToast({ title: '生成链接失败', icon: 'none' });
       },
     });
+  },
+
+  /** 关注/取关作者 */
+  async toggleFollow() {
+    if (!isLoggedIn()) {
+      wx.showToast({ title: '请先登录', icon: 'none' });
+      return;
+    }
+    const { item, isFollowed, followLoading } = this.data;
+    if (followLoading || !item || !item._openid) return;
+
+    this.setData({ followLoading: true });
+    try {
+      let res;
+      if (isFollowed) {
+        res = await unfollowUser(item._openid);
+      } else {
+        res = await followUser(item._openid);
+      }
+      if (res.success) {
+        this.setData({ isFollowed: !isFollowed });
+        wx.showToast({ title: isFollowed ? '已取消关注' : '关注成功', icon: 'success' });
+      } else {
+        wx.showToast({ title: res.message || '操作失败', icon: 'none' });
+      }
+    } catch (err) {
+      wx.showToast({ title: '操作异常', icon: 'none' });
+    }
+    this.setData({ followLoading: false });
   },
 
   /** 删除作品 */

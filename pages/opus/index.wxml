@@ -34,8 +34,10 @@
       <text class="label">联系邮箱：</text>
       <text class="value clickable" bindtap="copyEmail">{{item.email}}</text>
     </view>
-    <!-- 联系作者按钮 -->
+    <!-- 操作按钮 -->
     <view class="action-buttons">
+      <t-button wx:if="{{!isAuthor && !isFollowed}}" theme="primary" size="medium" icon="user-add" loading="{{followLoading}}" bind:tap="toggleFollow">关注作者</t-button>
+      <t-button wx:if="{{!isAuthor && isFollowed}}" theme="default" size="medium" icon="user-checked" loading="{{followLoading}}" bind:tap="toggleFollow">已关注</t-button>
       <t-button wx:if="{{!isAuthor}}" theme="primary" size="medium" icon="chat" bind:tap="contactAuthor">联系作者</t-button>
       <t-button wx:if="{{isAuthor}}" theme="danger" size="medium" icon="delete" bind:tap="deleteOpus">删除作品</t-button>
     </view>
