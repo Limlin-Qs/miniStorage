@@ -5,8 +5,8 @@ export default {
     message: '请求成功',
     data: [
       {
-        url: '/static/home/card0.png',
-        desc: '少年,星空与梦想',
+        url: '/static/home/card1.png',
+        desc: 'Bot机器人',
         tags: [
           {
             text: 'AI绘画',

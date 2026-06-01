@@ -1,0 +1,61 @@
+<t-navbar title="轮播图管理" leftArrow bind:go-back="onBack" />
+<view class="container">
+  <view class="list">
+    <view class="item" wx:for="{{swiperList}}" wx:key="index">
+      <view class="item-header">
+        <text class="item-index">第 {{index + 1}} 张</text>
+        <view class="item-del" bindtap="removeItem" data-index="{{index}}">
+          <t-icon name="delete" size="36rpx" color="#e34d59" />
+        </view>
+      </view>
+
+      <!-- 图片区域 -->
+      <view class="item-image" bindtap="chooseImage" data-index="{{index}}">
+        <image wx:if="{{item.image}}" class="item-image__preview" src="{{item.image}}" mode="aspectFill" />
+        <view wx:else class="item-image__placeholder">
+          <t-icon name="add" size="48rpx" color="#bbb" />
+          <text>点击上传图片</text>
+        </view>
+      </view>
+
+      <!-- 跳转链接 -->
+      <view class="item-link">
+        <text class="item-link__label">跳转链接</text>
+        <t-input
+          value="{{item.link}}"
+          placeholder="如 /pages/opus/index?id=xxx"
+          data-index="{{index}}"
+          bind:change="onLinkChange"
+          clearable
+        />
+      </view>
+
+      <!-- 排序 -->
+      <view class="item-sort">
+        <view class="sort-btn {{index === 0 ? 'disabled' : ''}}" bindtap="moveUp" data-index="{{index}}">
+          <t-icon name="chevron-up" size="32rpx" color="{{index === 0 ? '#ccc' : '#0052d9'}}" />
+        </view>
+        <view class="sort-btn {{index === swiperList.length - 1 ? 'disabled' : ''}}" bindtap="moveDown" data-index="{{index}}">
+          <t-icon name="chevron-down" size="32rpx" color="{{index === swiperList.length - 1 ? '#ccc' : '#0052d9'}}" />
+        </view>
+      </view>
+    </view>
+
+    <!-- 空状态 -->
+    <view class="empty" wx:if="{{swiperList.length === 0 && !loading}}">
+      <t-icon name="image-error" size="80rpx" color="#ddd" />
+      <text class="empty-text">暂无轮播图</text>
+    </view>
+
+    <!-- 添加按钮 -->
+    <view class="add-btn" bindtap="addItem">
+      <t-icon name="add-circle" size="40rpx" color="#0052d9" />
+      <text>添加轮播图</text>
+    </view>
+  </view>
+
+  <!-- 底部保存按钮 -->
+  <view class="footer">
+    <t-button theme="primary" block bind:tap="save">保存</t-button>
+  </view>
+</view>

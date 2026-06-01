@@ -1,17 +1,32 @@
 <view class="detail-container" wx:if="{{item}}">
   <!-- 头部图例+标题区域 -->
   <view class="header-section">
-    <image class="legend-icon" src="{{item.coverUrl || item.legend}}" mode="aspectFill"></image>
+    <image class="legend-icon" src="{{item.coverUrl || item.legend}}" mode="aspectFill" bindtap="previewCover"></image>
     <view class="title-group">
       <text class="item-name">{{item.name}}</text>
       <text class="item-type">{{item.type || ''}}</text>
     </view>
   </view>
 
+  <!-- 多图展示 -->
+  <view class="images-section" wx:if="{{allImages.length > 1}}">
+    <view class="images-grid">
+      <image
+        wx:for="{{allImages}}"
+        wx:key="index"
+        class="images-grid__item"
+        src="{{item}}"
+        mode="aspectFill"
+        data-index="{{index}}"
+        bindtap="previewImage"
+      />
+    </view>
+  </view>
+
   <!-- 核心信息卡片 -->
   <view class="info-card" wx:if="{{item.department || item.leader || item.createTime || item.statusText || item.phone || item.email}}">
     <view class="info-item" wx:if="{{item.department}}">
-      <text class="label">所属部门：</text>
+      <text class="label">所属机构：</text>
       <text class="value">{{item.department}}</text>
     </view>
     <view class="info-item" wx:if="{{item.leader}}">
@@ -36,8 +51,8 @@
     </view>
     <!-- 操作按钮 -->
     <view class="action-buttons">
-      <t-button wx:if="{{!isAuthor && !isFollowed}}" theme="primary" size="medium" icon="user-add" loading="{{followLoading}}" bind:tap="toggleFollow">关注作者</t-button>
-      <t-button wx:if="{{!isAuthor && isFollowed}}" theme="default" size="medium" icon="user-checked" loading="{{followLoading}}" bind:tap="toggleFollow">已关注</t-button>
+      <t-button wx:if="{{!isAuthor && !isFollowed}}" theme="primary" size="medium" icon="star" loading="{{followLoading}}" bind:tap="toggleFollow">关注作品</t-button>
+      <t-button wx:if="{{!isAuthor && isFollowed}}" theme="default" size="medium" icon="star-filled" loading="{{followLoading}}" bind:tap="toggleFollow">已关注</t-button>
       <t-button wx:if="{{!isAuthor}}" theme="primary" size="medium" icon="chat" bind:tap="contactAuthor">联系作者</t-button>
       <t-button wx:if="{{isAuthor}}" theme="danger" size="medium" icon="delete" bind:tap="deleteOpus">删除作品</t-button>
     </view>

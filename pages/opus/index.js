@@ -1,7 +1,7 @@
 import { getContentDetail, deleteContent } from '~/utils/content';
 import { createConversation } from '~/utils/message';
 import { isLoggedIn, getUserInfo } from '~/utils/auth';
-import { followUser, unfollowUser, checkFollow } from '~/utils/follow';
+import { followOpus, unfollowOpus, checkFollowOpus } from '~/utils/follow';
 
 Page({
   data: {
@@ -10,6 +10,7 @@ Page({
     isAuthor: false,
     isFollowed: false,
     followLoading: false,
+    allImages: [], // 所有图片合集，用于预览
   },
 
   onLoad(options) {
@@ -27,17 +28,34 @@ Page({
       const res = await getContentDetail(id);
       if (res.success) {
         const item = res.data;
-        // cloud:// 图片转为临时链接
-        await this.resolveCloudUrls(item);
-        // 判断当前用户是否为作者
-        const myInfo = await getUserInfo();
+
+        // 并行处理：图片转临时链接 + 获取用户信息 + 检查关注作品
+        const [_, myInfo, followRes] = await Promise.all([
+          this.resolveCloudUrls(item),
+          getUserInfo(),
+          checkFollowOpus(id),
+        ]);
+
         const isAuthor = !!(myInfo && myInfo._openid && myInfo._openid === item._openid);
-        this.setData({ item, loading: false, isAuthor });
-        // 非作者时检查关注状态
-        if (!isAuthor && item._openid) {
-          const isFollowed = await checkFollow(item._openid);
-          this.setData({ isFollowed });
+        const isFollowed = !isAuthor ? followRes : false;
+
+        // 清洗标签数据：确保tags为字符串数组
+        if (item.tags && Array.isArray(item.tags)) {
+          item.tags = item.tags.map((t) => {
+            if (typeof t === 'string') return t;
+            if (t && typeof t === 'object') return t.name || t.label || t.text || JSON.stringify(t);
+            return String(t);
+          });
         }
+
+        // 收集所有图片
+        const allImages = [];
+        if (item.coverUrl) allImages.push(item.coverUrl);
+        if (item.coverUrls && item.coverUrls.length > 0) {
+          item.coverUrls.forEach((u) => { if (u && !allImages.includes(u)) allImages.push(u); });
+        }
+
+        this.setData({ item, loading: false, isAuthor, isFollowed, allImages });
       } else {
         wx.showToast({ title: res.message || '加载失败', icon: 'none' });
         this.setData({ loading: false });
@@ -165,22 +183,22 @@ Page({
     });
   },
 
-  /** 关注/取关作者 */
+  /** 关注/取关作品 */
   async toggleFollow() {
     if (!isLoggedIn()) {
       wx.showToast({ title: '请先登录', icon: 'none' });
       return;
     }
     const { item, isFollowed, followLoading } = this.data;
-    if (followLoading || !item || !item._openid) return;
+    if (followLoading || !item || !item._id) return;
 
     this.setData({ followLoading: true });
     try {
       let res;
       if (isFollowed) {
-        res = await unfollowUser(item._openid);
+        res = await unfollowOpus(item._id);
       } else {
-        res = await followUser(item._openid);
+        res = await followOpus(item._id);
       }
       if (res.success) {
         this.setData({ isFollowed: !isFollowed });
@@ -192,6 +210,26 @@ Page({
       wx.showToast({ title: '操作异常', icon: 'none' });
     }
     this.setData({ followLoading: false });
+  },
+
+  /** 预览封面图 */
+  previewCover() {
+    const { allImages } = this.data;
+    if (allImages.length === 0) return;
+    wx.previewImage({
+      urls: allImages,
+      current: allImages[0],
+    });
+  },
+
+  /** 预览指定图片 */
+  previewImage(e) {
+    const { allImages } = this.data;
+    const index = e.currentTarget.dataset.index;
+    wx.previewImage({
+      urls: allImages,
+      current: allImages[index] || allImages[0],
+    });
   },
 
   /** 删除作品 */

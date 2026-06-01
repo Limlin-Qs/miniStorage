@@ -37,10 +37,10 @@
     <view class="info box">
       <view class="info__input">
         <t-input 
-          placeholder="请输入所属部门"
+          placeholder="请输入所属机构"
           value="{{formData.department}}"
           bindchange="onDepartmentChange">
-          <view slot="label" class="custom-label"> 所属部门 </view>
+          <view slot="label" class="custom-label"> 所属机构 </view>
         </t-input>
         <t-input 
           placeholder="请输入项目名称"

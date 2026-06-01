@@ -79,6 +79,13 @@
       ]
     },
     {
+      "root": "pages/swiper-manage",
+      "name": "swiper-manage",
+      "pages": [
+        "index"
+      ]
+    },
+    {
       "root": "pages/feedback",
       "name": "feedback",
       "pages": [

@@ -10,19 +10,6 @@
     <text class="service-header__desc">我们随时为您提供帮助</text>
   </view>
 
-  <!-- 在线客服 -->
-  <view class="service-section">
-    <view class="service-section__title">在线客服</view>
-    <button class="service-contact-btn" open-type="contact" send-message-title="AI创库用户反馈">
-      <t-icon name="chat" size="40rpx" color="#0052d9" />
-      <view class="service-contact-btn__text">
-        <text class="service-contact-btn__title">微信在线客服</text>
-        <text class="service-contact-btn__desc">工作日 9:00-18:00 在线</text>
-      </view>
-      <t-icon name="chevron-right" size="36rpx" color="#bbb" />
-    </button>
-  </view>
-
   <!-- 常见问题 -->
   <view class="service-section">
     <view class="service-section__title">常见问题</view>

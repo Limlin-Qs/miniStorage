@@ -75,6 +75,23 @@ export async function getSwipers() {
 }
 
 /**
+ * 更新轮播图
+ * @param {array} list - 轮播图列表 [{image, link}]
+ */
+export async function updateSwipers(list) {
+  try {
+    const res = await wx.cloud.callFunction({
+      name: 'content',
+      data: { action: 'updateSwipers', list },
+    });
+    return res.result;
+  } catch (err) {
+    console.error('updateSwipers error:', err);
+    return { success: false, message: '更新轮播图失败' };
+  }
+}
+
+/**
  * 获取热门标签
  */
 export async function getHotTags() {

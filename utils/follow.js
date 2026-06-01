@@ -1,69 +1,69 @@
 /**
- * 关注功能工具模块
+ * 关注功能工具模块（关注作品）
  * 封装关注相关的云函数调用
  */
 
 /**
- * 关注用户
- * @param {string} targetOpenid - 被关注用户的 openid
+ * 关注作品
+ * @param {string} opusId - 作品ID
  */
-export async function followUser(targetOpenid) {
+export async function followOpus(opusId) {
   try {
     const res = await wx.cloud.callFunction({
       name: 'content',
-      data: { action: 'follow', targetOpenid },
+      data: { action: 'follow', opusId },
     });
     return res.result;
   } catch (err) {
-    console.error('followUser error:', err);
+    console.error('followOpus error:', err);
     return { success: false, message: '关注失败' };
   }
 }
 
 /**
- * 取消关注
- * @param {string} targetOpenid - 被取消关注用户的 openid
+ * 取消关注作品
+ * @param {string} opusId - 作品ID
  */
-export async function unfollowUser(targetOpenid) {
+export async function unfollowOpus(opusId) {
   try {
     const res = await wx.cloud.callFunction({
       name: 'content',
-      data: { action: 'unfollow', targetOpenid },
+      data: { action: 'unfollow', opusId },
     });
     return res.result;
   } catch (err) {
-    console.error('unfollowUser error:', err);
+    console.error('unfollowOpus error:', err);
     return { success: false, message: '取消关注失败' };
   }
 }
 
 /**
- * 检查是否已关注某用户
- * @param {string} targetOpenid - 目标用户 openid
+ * 检查是否已关注某作品
+ * @param {string} opusId - 作品ID
  * @returns {boolean} isFollowed
  */
-export async function checkFollow(targetOpenid) {
+export async function checkFollowOpus(opusId) {
   try {
     const res = await wx.cloud.callFunction({
       name: 'content',
-      data: { action: 'checkFollow', targetOpenid },
+      data: { action: 'checkFollow', opusId },
     });
     if (res.result.success) {
       return res.result.data.isFollowed;
     }
     return false;
   } catch (err) {
-    console.error('checkFollow error:', err);
+    console.error('checkFollowOpus error:', err);
     return false;
   }
 }
 
 /**
- * 获取我的关注列表
+ * 获取我的关注作品列表
  * @param {number} page
  * @param {number} pageSize
  */
-export async function getFollowList(page = 1, pageSize = 20) {
+export async function getFollowOpusList(page = 1, pageSize = 20) {
   try {
     const res = await wx.cloud.callFunction({
       name: 'content',
@@ -71,7 +71,7 @@ export async function getFollowList(page = 1, pageSize = 20) {
     });
     return res.result;
   } catch (err) {
-    console.error('getFollowList error:', err);
+    console.error('getFollowOpusList error:', err);
     return { success: false, message: '获取关注列表失败' };
   }
 }

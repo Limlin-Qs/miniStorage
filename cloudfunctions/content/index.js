@@ -24,6 +24,8 @@ exports.main = async (event, context) => {
       return await search(event);
     case 'getSwipers':
       return await getSwipers();
+    case 'updateSwipers':
+      return await updateSwipers(event);
     case 'getHotTags':
       return await getHotTags();
     case 'publish':
@@ -36,15 +38,15 @@ exports.main = async (event, context) => {
       return await uploadFile(event);
     case 'delete':
       return await deleteContent(event, OPENID);
-    // ---- 关注相关 ----
+    // ---- 关注相关（关注作品）----
     case 'follow':
-      return await followUser(event, OPENID);
+      return await followOpus(event, OPENID);
     case 'unfollow':
-      return await unfollowUser(event, OPENID);
+      return await unfollowOpus(event, OPENID);
     case 'checkFollow':
-      return await checkFollow(event, OPENID);
+      return await checkFollowOpus(event, OPENID);
     case 'getFollowList':
-      return await getFollowList(event, OPENID);
+      return await getFollowOpusList(event, OPENID);
     default:
       return { code: 400, success: false, message: '未知操作' };
   }
@@ -66,16 +68,16 @@ async function getList(event, openid) {
       // 推荐tab：显示已审核通过的内容
       query = { status: 'published' };
     } else if (tab === 'follow') {
-      // 关注tab：先获取当前用户关注的 openid 列表，再查对应内容
+      // 关注tab：获取当前用户关注的作品ID列表，直接查询对应作品
       const { data: follows } = await db.collection('follows')
         .where({ follower: openid })
-        .field({ followee: true })
+        .field({ opusId: true })
         .get();
-      const followeeIds = follows.map((f) => f.followee);
-      if (followeeIds.length === 0) {
+      const opusIds = follows.map((f) => f.opusId);
+      if (opusIds.length === 0) {
         return { code: 200, success: true, data: { list: [], total: 0, page, pageSize, hasMore: false } };
       }
-      query = { status: 'published', _openid: _.in(followeeIds) };
+      query = { status: 'published', _id: _.in(opusIds) };
     }
 
     const totalRes = await contentsCol.where(query).count();
@@ -180,6 +182,38 @@ async function getSwipers() {
     };
   } catch (err) {
     return { code: 500, success: false, message: '获取轮播图失败' };
+  }
+}
+
+/**
+ * 更新轮播图（写入配置集合）
+ * @param {array} event.list - 轮播图列表 [{image, link}]
+ */
+async function updateSwipers(event) {
+  try {
+    const { list } = event;
+    if (!list || !Array.isArray(list) || list.length === 0) {
+      return { code: 400, success: false, message: '轮播图列表不能为空' };
+    }
+
+    const configCol = db.collection('config');
+    const { data } = await configCol.where({ type: 'swiper' }).get();
+
+    if (data.length > 0) {
+      // 更新已有记录
+      await configCol.doc(data[0]._id).update({
+        data: { list, updateTime: db.serverDate() },
+      });
+    } else {
+      // 新增记录
+      await configCol.add({
+        data: { type: 'swiper', list, createTime: db.serverDate(), updateTime: db.serverDate() },
+      });
+    }
+
+    return { code: 200, success: true, message: '轮播图已更新' };
+  } catch (err) {
+    return { code: 500, success: false, message: '更新轮播图失败：' + err.message };
   }
 }
 
@@ -435,25 +469,22 @@ async function uploadFile(event) {
   }
 }
 
-// ==================== 关注功能 ====================
+// ==================== 关注功能（关注作品）====================
 
 /**
- * 关注用户
- * @param {string} event.targetOpenid - 被关注用户的 openid
+ * 关注作品
+ * @param {string} event.opusId - 作品ID
  */
-async function followUser(event, openid) {
-  const { targetOpenid } = event;
-  if (!targetOpenid) {
-    return { code: 400, success: false, message: '缺少目标用户ID' };
-  }
-  if (targetOpenid === openid) {
-    return { code: 400, success: false, message: '不能关注自己' };
+async function followOpus(event, openid) {
+  const { opusId } = event;
+  if (!opusId) {
+    return { code: 400, success: false, message: '缺少作品ID' };
   }
 
   try {
-    // 检查是否已关注
+    // 检查是否已关注该作品
     const { data: existing } = await db.collection('follows')
-      .where({ follower: openid, followee: targetOpenid })
+      .where({ follower: openid, opusId })
       .get();
 
     if (existing.length > 0) {
@@ -463,7 +494,7 @@ async function followUser(event, openid) {
     await db.collection('follows').add({
       data: {
         follower: openid,     // 关注者（当前用户）
-        followee: targetOpenid, // 被关注者
+        opusId,               // 作品ID
         createTime: db.serverDate(),
       },
     });
@@ -475,18 +506,18 @@ async function followUser(event, openid) {
 }
 
 /**
- * 取消关注
- * @param {string} event.targetOpenid - 被取消关注用户的 openid
+ * 取消关注作品
+ * @param {string} event.opusId - 作品ID
  */
-async function unfollowUser(event, openid) {
-  const { targetOpenid } = event;
-  if (!targetOpenid) {
-    return { code: 400, success: false, message: '缺少目标用户ID' };
+async function unfollowOpus(event, openid) {
+  const { opusId } = event;
+  if (!opusId) {
+    return { code: 400, success: false, message: '缺少作品ID' };
   }
 
   try {
     const { data: existing } = await db.collection('follows')
-      .where({ follower: openid, followee: targetOpenid })
+      .where({ follower: openid, opusId })
       .get();
 
     if (existing.length === 0) {
@@ -504,18 +535,18 @@ async function unfollowUser(event, openid) {
 }
 
 /**
- * 检查是否已关注某用户
- * @param {string} event.targetOpenid - 目标用户 openid
+ * 检查是否已关注某作品
+ * @param {string} event.opusId - 作品ID
  */
-async function checkFollow(event, openid) {
-  const { targetOpenid } = event;
-  if (!targetOpenid) {
-    return { code: 400, success: false, message: '缺少目标用户ID' };
+async function checkFollowOpus(event, openid) {
+  const { opusId } = event;
+  if (!opusId) {
+    return { code: 400, success: false, message: '缺少作品ID' };
   }
 
   try {
     const { data: existing } = await db.collection('follows')
-      .where({ follower: openid, followee: targetOpenid })
+      .where({ follower: openid, opusId })
       .get();
 
     return {
@@ -529,11 +560,11 @@ async function checkFollow(event, openid) {
 }
 
 /**
- * 获取关注列表（我关注的人）
+ * 获取关注作品列表
  * @param {number} event.page
  * @param {number} event.pageSize
  */
-async function getFollowList(event, openid) {
+async function getFollowOpusList(event, openid) {
   const { page = 1, pageSize = 20 } = event;
 
   try {

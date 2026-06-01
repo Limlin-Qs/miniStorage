@@ -9,24 +9,24 @@ Page({
     isLoad: false,
     service: [
       {
-        name: '腾讯文档',
-        image: '/static/icon_doc.png',
+        name: '户外旅行',
+        image: '/static/icon_hiking.jpg',
         appId: 'wxdeab69eb5190c02e',
         path: 'pages/home/home',
       },
       {
-        name: '腾讯会议',
-        image: '/static/icon_meeting.png',
+        name: '海鲜精灵',
+        image: '/static/icon_sea.jpg',
         appId: 'wxfec5b356c4235ed6',
       },
       {
-        name: '金山文档',
-        image: '/static/icon_ksdoc.png',
+        name: '畅享租界',
+        image: '/static/icon_rent.jpg',
         appId: 'wxd6b6e39e02f0a3cb',
       },
       {
-        name: '石墨文档',
-        image: '/static/icon_shimo.jpg',
+        name: '元气集会',
+        image: '/static/icon_meeting.jpg',
         appId: 'wx3c4e4e6ab4e9eb2d',
       },
     ],
@@ -38,6 +38,7 @@ Page({
       { name: '草稿箱', icon: 'file-copy', type: 'draft', url: '/pages/dataCenter/index?status=draft' },
     ],
     settingList: [
+      { name: '轮播图管理', icon: 'view-module', type: 'swiper-manage', url: '/pages/swiper-manage/index' },
       { name: '联系客服', icon: 'service', type: 'service', url: '/pages/service/index' },
       { name: '设置', icon: 'setting', type: 'setting', url: '/pages/setting/index' },
     ],

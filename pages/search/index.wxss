@@ -7,7 +7,8 @@
   width: 100vw;
   height: 100vh;
   padding: 0 30rpx;
-  padding-top: calc(60px + 20px);
+  /* 导航栏高度 + 状态栏 + 额外间距 */
+  padding-top: calc(60px + 20px + 16px);
 }
 
 .search-page .t-class__input-container {
